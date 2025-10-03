@@ -2,6 +2,8 @@
 
 A full-stack SaaS application for football match predictions with admin panel, client management, and gamification features.
 
+![Login Page](https://github.com/user-attachments/assets/16e905d2-fe8d-4c74-bd27-b2d5fdd4c251)
+
 ## 🚀 Features
 
 ### Admin Panel
@@ -79,6 +81,30 @@ mvp/
 
 ## 🚀 Getting Started
 
+### Quick Setup (Recommended)
+
+#### Linux/Mac:
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+#### Windows:
+```cmd
+setup.bat
+```
+
+The setup script will:
+- Install all dependencies
+- Create database and run migrations
+- Create an admin user
+- Populate sample data
+- Set up environment files
+
+### Manual Setup
+
+If you prefer to set up manually, follow these steps:
+
 ### Prerequisites
 - Python 3.8+ 
 - Node.js 16+
@@ -148,6 +174,23 @@ npm start
 ```
 
 The frontend will be available at `http://localhost:3000/`
+
+## 📸 Screenshots
+
+### Login Page
+![Login Page](https://github.com/user-attachments/assets/16e905d2-fe8d-4c74-bd27-b2d5fdd4c251)
+
+### Admin Dashboard
+![Admin Dashboard](https://github.com/user-attachments/assets/87630462-9add-45bf-9834-0f3853f6d4cf)
+
+### Manage Clients
+![Manage Clients](https://github.com/user-attachments/assets/86910902-562e-485b-8b53-28130a679503)
+
+### Manage Matches
+![Manage Matches](https://github.com/user-attachments/assets/6a9c0ad4-63c9-4e13-8bc5-57009024b878)
+
+### User Dashboard
+![User Dashboard](https://github.com/user-attachments/assets/701acbf3-05c2-4152-aa5f-58c2aa0bfaf3)
 
 ## 📋 API Endpoints
 
@@ -251,11 +294,19 @@ The frontend will be available at `http://localhost:3000/`
 
 ## 📝 Default Credentials
 
-After running `createsuperuser`, use those credentials to log in.
+After running the setup script or `python manage.py populate_data`, you can use these credentials:
 
-Example:
-- Username: admin
-- Password: (the one you set)
+**Admin Login:**
+- Username: `admin`
+- Password: `admin123`
+
+**Client Login:**
+- Username: `client1`
+- Password: `client123`
+
+**User Login:**
+- Username: `user1` (or `user2`, `user3`, etc.)
+- Password: `user123`
 
 ## 🎨 Mobile-First Design
 
