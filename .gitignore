@@ -1,0 +1,33 @@
+# Python
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+*.log
+.env
+
+# Django
+db.sqlite3
+staticfiles/
+media/
+
+# React / Node
+node_modules/
+build/
+.env.local
+
+# IDE
+.DS_Store
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
