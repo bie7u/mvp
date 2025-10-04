@@ -175,6 +175,82 @@ npm start
 
 The frontend will be available at `http://localhost:3000/`
 
+## 🔑 Accessing the Admin Panel
+
+There are **TWO** admin interfaces available:
+
+### 1. React Admin Dashboard (Recommended for daily use)
+
+The modern React-based admin interface with full client management capabilities:
+
+1. **Access URL**: `http://localhost:3000/`
+2. **Login with**:
+   - Username: `admin`
+   - Password: `admin123`
+3. **Features**:
+   - ✅ Manage Clients (Add, Edit, Delete)
+   - ✅ Manage Users (Add, Edit, Delete)
+   - ✅ Manage Matches (Add, Update Results)
+   - ✅ View Global Leaderboard
+   - ✅ View All Bets
+   - ✅ Statistics Dashboard
+
+![Root Admin Dashboard](https://github.com/user-attachments/assets/80fea2f5-b799-4879-b09b-b77b96572c03)
+
+#### How to Add a Client:
+
+1. Login at `http://localhost:3000/` with admin credentials
+2. You'll see the "Root Admin Dashboard" with statistics
+3. Click on "Manage Clients" card (with 🏢 icon)
+4. Click the "+ Add Client" button in the top right
+5. Fill in the form:
+   - Client Name (required)
+   - Logo URL (optional)
+   - Primary Color (color picker)
+   - Secondary Color (color picker)
+6. Click "Create Client"
+
+![Manage Clients Page](https://github.com/user-attachments/assets/2f85daaa-f5c5-4b10-bb19-b5231ad82127)
+
+![Add Client Form](https://github.com/user-attachments/assets/eb9edbe3-ed0a-472e-bd16-eb17ff8441f4)
+
+### 2. Django Admin Interface (Backend management)
+
+The traditional Django admin for database-level management:
+
+1. **Access URL**: `http://localhost:8000/admin/`
+2. **Login with**:
+   - Username: `admin`
+   - Password: `admin123`
+3. **Features**:
+   - ✅ Full database access
+   - ✅ Manage all models (Users, Clients, Matches, Bets, Badges, etc.)
+   - ✅ Bulk actions
+   - ✅ Advanced filtering and search
+
+![Django Admin Interface](https://github.com/user-attachments/assets/87f7346f-083a-45f7-af9d-cbb802b484f7)
+
+## 📝 User Roles
+
+### Root Admin (`root_admin`)
+- ✅ Manage all clients
+- ✅ Manage all users
+- ✅ Manage all matches
+- ✅ View global statistics
+- ✅ Access both React and Django admin panels
+- ❌ Cannot make predictions (admin role)
+
+### Client Admin (`client_admin`)
+- ✅ Manage users within their client
+- ✅ Make predictions
+- ✅ View client-specific leaderboard
+- ❌ Cannot manage other clients
+
+### User (`user`)
+- ✅ Make predictions
+- ✅ View leaderboard
+- ❌ Cannot manage users or clients
+
 ## 📸 Screenshots
 
 ### Login Page
@@ -278,6 +354,60 @@ The frontend will be available at `http://localhost:3000/`
 - Password hashing with Django's built-in system
 - No self-registration - users created by administrators
 
+## 📞 Troubleshooting
+
+### "I don't see the option to add clients"
+
+**Solution**: Make sure you're logged in as a **root_admin** user:
+
+1. **Check your role**: After logging in to `http://localhost:3000/`, you should see "Root Admin" badge in the top right corner
+2. **If you see "Client Admin" or "User"**: You don't have permission to manage clients. Ask a root admin to change your role or use the credentials below.
+3. **Use the correct credentials**:
+   - Username: `admin`
+   - Password: `admin123`
+4. **If the admin user doesn't exist**, create it:
+   ```bash
+   cd backend
+   python manage.py shell -c "
+   from django.contrib.auth import get_user_model
+   User = get_user_model()
+   if not User.objects.filter(username='admin').exists():
+       admin = User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+       admin.role = 'root_admin'
+       admin.save()
+       print('Admin user created!')
+   "
+   ```
+
+### Backend not starting
+
+**Solution**: Make sure you've activated the virtual environment and installed dependencies:
+```bash
+cd backend
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+### Frontend not starting
+
+**Solution**: Make sure you've installed dependencies and the .env file exists:
+```bash
+cd frontend
+cp .env.example .env
+npm install
+npm start
+```
+
+### Cannot login - "Failed to load user" error
+
+**Solution**: Make sure both backend and frontend servers are running:
+- Backend: `http://localhost:8000/` (check by visiting `http://localhost:8000/api/`)
+- Frontend: `http://localhost:3000/`
+
+If the backend is not running, the frontend won't be able to authenticate.
+
 ## 🌐 Deployment
 
 ### Backend (Render/Heroku/Railway)
@@ -294,19 +424,39 @@ The frontend will be available at `http://localhost:3000/`
 
 ## 📝 Default Credentials
 
-After running the setup script or `python manage.py populate_data`, you can use these credentials:
+After running the setup script or creating the admin user manually, use these credentials to login:
 
-**Admin Login:**
-- Username: `admin`
-- Password: `admin123`
+### Root Admin (Full Access)
+- **Username**: `admin`
+- **Password**: `admin123`
+- **Role**: `root_admin`
+- **Login URL**: `http://localhost:3000/` (React Dashboard) or `http://localhost:8000/admin/` (Django Admin)
+- **Permissions**: 
+  - ✅ Manage all clients
+  - ✅ Manage all users
+  - ✅ Manage all matches
+  - ✅ View global statistics
+  - ❌ Cannot make predictions
 
-**Client Login:**
-- Username: `client1`
-- Password: `client123`
+### Client Admin (if sample data populated)
+- **Username**: `client1`
+- **Password**: `client123`
+- **Role**: `client_admin`
+- **Login URL**: `http://localhost:3000/`
+- **Permissions**:
+  - ✅ Manage users within their client
+  - ✅ Make predictions
+  - ❌ Cannot manage clients
 
-**User Login:**
-- Username: `user1` (or `user2`, `user3`, etc.)
-- Password: `user123`
+### Regular User (if sample data populated)
+- **Username**: `user1`, `user2`, `user3`, etc.
+- **Password**: `user123`
+- **Role**: `user`
+- **Login URL**: `http://localhost:3000/`
+- **Permissions**:
+  - ✅ Make predictions
+  - ✅ View leaderboard
+  - ❌ Cannot manage anything
 
 ## 🎨 Mobile-First Design
 
