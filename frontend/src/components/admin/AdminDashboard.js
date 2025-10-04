@@ -108,6 +108,14 @@ const AdminDashboard = () => {
           </Card>
         </Link>
 
+        <Link to="/standings">
+          <Card className="hover:shadow-xl transition-all cursor-pointer transform hover:scale-105 border-2 border-transparent hover:border-indigo-300 dark:hover:border-indigo-500">
+            <div className="text-5xl mb-3">📊</div>
+            <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-200">{t('leagueStandings')}</h3>
+            <p className="text-gray-600 dark:text-gray-400">{t('viewLeagueStandings')}</p>
+          </Card>
+        </Link>
+
         <Link to="/admin/bets">
           <Card className="hover:shadow-xl transition-all cursor-pointer transform hover:scale-105 border-2 border-transparent hover:border-red-300 dark:hover:border-red-500">
             <div className="text-5xl mb-3">🎯</div>

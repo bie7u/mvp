@@ -97,6 +97,30 @@ const translations = {
     losing: 'Losing',
     actualScore: 'Actual Score',
     
+    // League Standings
+    leagueStandings: 'League Standings',
+    viewLeagueStandings: 'View league standings and rounds',
+    season: 'Season',
+    round: 'Round',
+    championsLeague: 'Champions League',
+    europaLeague: 'Europa League',
+    relegation: 'Relegation',
+    team: 'Team',
+    played: 'P',
+    won: 'W',
+    drawn: 'D',
+    lost: 'L',
+    gf: 'GF',
+    ga: 'GA',
+    gd: 'GD',
+    pts: 'Pts',
+    
+    // Footer
+    allRightsReserved: 'All rights reserved',
+    about: 'About',
+    contact: 'Contact',
+    privacy: 'Privacy',
+    
     // Common
     loading: 'Loading...',
   },
@@ -185,6 +209,30 @@ const translations = {
     winning: 'Wygrane',
     losing: 'Przegrane',
     actualScore: 'Rzeczywisty wynik',
+    
+    // League Standings
+    leagueStandings: 'Tabele ligowe',
+    viewLeagueStandings: 'Zobacz tabele ligowe i kolejki',
+    season: 'Sezon',
+    round: 'Kolejka',
+    championsLeague: 'Liga Mistrzów',
+    europaLeague: 'Liga Europy',
+    relegation: 'Spadek',
+    team: 'Drużyna',
+    played: 'M',
+    won: 'W',
+    drawn: 'R',
+    lost: 'P',
+    gf: 'BZ',
+    ga: 'BS',
+    gd: 'RB',
+    pts: 'Pkt',
+    
+    // Footer
+    allRightsReserved: 'Wszelkie prawa zastrzeżone',
+    about: 'O nas',
+    contact: 'Kontakt',
+    privacy: 'Prywatność',
     
     // Common
     loading: 'Ładowanie...',
