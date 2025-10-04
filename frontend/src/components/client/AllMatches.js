@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import Card from '../common/Card';
 import { matchService } from '../../services/api';
@@ -17,9 +17,25 @@ const AllMatches = () => {
     loadInitialData();
   }, []);
 
+  const loadMatches = useCallback(async () => {
+    try {
+      setLoading(true);
+      const filters = {
+        league: selectedLeague,
+        round: selectedRound,
+      };
+      const filteredMatches = await matchService.getMatches(filters);
+      setMatches(filteredMatches);
+    } catch (error) {
+      console.error('Failed to load matches:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedLeague, selectedRound]);
+
   useEffect(() => {
     loadMatches();
-  }, [selectedLeague, selectedRound]);
+  }, [loadMatches]);
 
   const loadInitialData = async () => {
     try {
@@ -35,22 +51,6 @@ const AllMatches = () => {
       setMatches(allMatches);
     } catch (error) {
       console.error('Failed to load initial data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadMatches = async () => {
-    try {
-      setLoading(true);
-      const filters = {
-        league: selectedLeague,
-        round: selectedRound,
-      };
-      const filteredMatches = await matchService.getMatches(filters);
-      setMatches(filteredMatches);
-    } catch (error) {
-      console.error('Failed to load matches:', error);
     } finally {
       setLoading(false);
     }
