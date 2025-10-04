@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Card from '../common/Card';
 import { matchService, betService, leaderboardService } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ClientDashboard = () => {
+  const { user } = useAuth();
   const [upcomingMatches, setUpcomingMatches] = useState([]);
   const [myBets, setMyBets] = useState([]);
   const [ranking, setRanking] = useState([]);
@@ -36,30 +38,43 @@ const ClientDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          Dashboard
+        </h1>
+        <div className="text-right">
+          <div className="text-sm text-gray-600">Your Points</div>
+          <div className="text-3xl font-bold text-blue-600">🏆 {user.points}</div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Upcoming Matches */}
-        <Card title="⚽ Upcoming Matches">
+        <Card>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-gray-800">⚽ Upcoming Matches</h2>
+          </div>
           {upcomingMatches.length === 0 ? (
-            <p className="text-gray-500">No upcoming matches</p>
+            <p className="text-gray-500 text-center py-8">No upcoming matches</p>
           ) : (
             <div className="space-y-3">
               {upcomingMatches.map((match) => (
                 <div
                   key={match.id}
-                  className="border-b pb-3 last:border-b-0 hover:bg-gray-50 p-2 rounded"
+                  className="border-2 border-gray-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md transition-all"
                 >
                   <div className="flex justify-between items-center">
                     <div className="flex-1">
-                      <div className="font-semibold">{match.home_team} vs {match.away_team}</div>
-                      <div className="text-sm text-gray-600">
-                        {new Date(match.match_date).toLocaleDateString()} - {match.league}
+                      <div className="font-semibold text-gray-900">
+                        {match.home_team} <span className="text-gray-400">vs</span> {match.away_team}
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1">
+                        📅 {new Date(match.match_date).toLocaleDateString()} - {match.league}
                       </div>
                     </div>
                     <Link
                       to={`/predict/${match.id}`}
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm"
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all"
                     >
                       Predict
                     </Link>
@@ -70,36 +85,49 @@ const ClientDashboard = () => {
           )}
           <Link
             to="/matches"
-            className="block mt-4 text-center text-blue-500 hover:text-blue-600 font-semibold"
+            className="block mt-4 text-center text-blue-600 hover:text-blue-700 font-semibold hover:underline"
           >
             View All Matches →
           </Link>
         </Card>
 
         {/* My Recent Bets */}
-        <Card title="🎯 My Recent Predictions">
+        <Card>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-gray-800">🎯 My Recent Predictions</h2>
+          </div>
           {myBets.length === 0 ? (
-            <p className="text-gray-500">No predictions yet</p>
+            <div className="text-center py-8">
+              <div className="text-5xl mb-3">🎯</div>
+              <p className="text-gray-500">No predictions yet</p>
+              <p className="text-sm text-gray-400 mt-2">Start predicting to earn points!</p>
+            </div>
           ) : (
             <div className="space-y-3">
               {myBets.map((bet) => (
                 <div
                   key={bet.id}
-                  className="border-b pb-3 last:border-b-0 p-2 rounded hover:bg-gray-50"
+                  className="border-2 border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors"
                 >
-                  <div className="font-semibold">
+                  <div className="font-semibold text-gray-900">
                     {bet.match_details.home_team} vs {bet.match_details.away_team}
                   </div>
-                  <div className="text-sm text-gray-600">
-                    Prediction: {bet.predicted_home_score} - {bet.predicted_away_score}
+                  <div className="text-sm text-gray-600 mt-1">
+                    Your prediction: <span className="font-bold text-blue-600">{bet.predicted_home_score} - {bet.predicted_away_score}</span>
                   </div>
-                  <div className="text-sm">
+                  <div className="text-sm mt-2">
                     {bet.is_processed ? (
-                      <span className="text-green-600 font-semibold">
-                        Points: {bet.points_earned}
+                      <span className={`px-3 py-1 rounded-full font-semibold ${
+                        bet.points_earned > 0 
+                          ? 'bg-green-100 text-green-700' 
+                          : 'bg-red-100 text-red-700'
+                      }`}>
+                        {bet.points_earned > 0 ? `+${bet.points_earned}` : bet.points_earned} points
                       </span>
                     ) : (
-                      <span className="text-gray-500">Pending</span>
+                      <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-semibold">
+                        ⏳ Pending
+                      </span>
                     )}
                   </div>
                 </div>
@@ -108,7 +136,7 @@ const ClientDashboard = () => {
           )}
           <Link
             to="/my-bets"
-            className="block mt-4 text-center text-blue-500 hover:text-blue-600 font-semibold"
+            className="block mt-4 text-center text-blue-600 hover:text-blue-700 font-semibold hover:underline"
           >
             View All Predictions →
           </Link>
@@ -116,32 +144,47 @@ const ClientDashboard = () => {
       </div>
 
       {/* Leaderboard */}
-      <Card title="🏆 Top Players">
+      <Card>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-gray-800">🏆 Top Players</h2>
+        </div>
         {ranking.length === 0 ? (
-          <p className="text-gray-500">No rankings available</p>
+          <p className="text-gray-500 text-center py-8">No rankings available</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2">Rank</th>
-                  <th className="text-left py-2">Player</th>
-                  <th className="text-right py-2">Points</th>
-                  <th className="text-right py-2">Accuracy</th>
+                <tr className="border-b-2 border-gray-200 bg-gray-50">
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Rank</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Player</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Points</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Accuracy</th>
                 </tr>
               </thead>
               <tbody>
                 {ranking.map((entry) => (
-                  <tr key={entry.rank} className="border-b last:border-b-0 hover:bg-gray-50">
-                    <td className="py-2">
-                      {entry.rank === 1 && '🥇'}
-                      {entry.rank === 2 && '🥈'}
-                      {entry.rank === 3 && '🥉'}
-                      {entry.rank > 3 && `#${entry.rank}`}
+                  <tr key={entry.rank} className="border-b border-gray-100 hover:bg-blue-50 transition-colors">
+                    <td className="py-3 px-4">
+                      <span className="text-xl font-bold">
+                        {entry.rank === 1 && '🥇'}
+                        {entry.rank === 2 && '🥈'}
+                        {entry.rank === 3 && '🥉'}
+                        {entry.rank > 3 && `#${entry.rank}`}
+                      </span>
                     </td>
-                    <td className="py-2">{entry.user.username}</td>
-                    <td className="text-right py-2 font-semibold">{entry.user.points}</td>
-                    <td className="text-right py-2">{entry.accuracy.toFixed(1)}%</td>
+                    <td className="py-3 px-4 font-medium text-gray-900">{entry.user.username}</td>
+                    <td className="text-right py-3 px-4 font-bold text-blue-600">{entry.user.points}</td>
+                    <td className="text-right py-3 px-4">
+                      <span className={`px-2 py-1 rounded-full text-sm font-semibold ${
+                        entry.accuracy >= 70 
+                          ? 'bg-green-100 text-green-800' 
+                          : entry.accuracy >= 40 
+                          ? 'bg-yellow-100 text-yellow-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {entry.accuracy.toFixed(1)}%
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -150,7 +193,7 @@ const ClientDashboard = () => {
         )}
         <Link
           to="/leaderboard"
-          className="block mt-4 text-center text-blue-500 hover:text-blue-600 font-semibold"
+          className="block mt-4 py-3 text-center bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all"
         >
           View Full Leaderboard →
         </Link>

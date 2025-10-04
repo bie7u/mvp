@@ -6,12 +6,12 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 class User(AbstractUser):
     """Custom User model with role-based permissions"""
     ROLE_CHOICES = [
-        ('admin', 'Admin'),
-        ('client', 'Client'),
+        ('root_admin', 'Root Admin'),
+        ('client_admin', 'Client Admin'),
         ('user', 'User'),
     ]
     
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='user')
     client = models.ForeignKey('Client', on_delete=models.CASCADE, null=True, blank=True, related_name='users')
     points = models.IntegerField(default=0)
     

@@ -9,6 +9,7 @@ import ManageClients from './components/admin/ManageClients';
 import ManageMatches from './components/admin/ManageMatches';
 import ClientDashboard from './components/client/ClientDashboard';
 import PredictMatch from './components/client/PredictMatch';
+import Leaderboard from './components/client/Leaderboard';
 
 function AppContent() {
   const { user } = useAuth();
@@ -24,7 +25,7 @@ function AppContent() {
             path="/"
             element={
               <ProtectedRoute>
-                {user?.role === 'admin' ? <AdminDashboard /> : <ClientDashboard />}
+                {user?.role === 'root_admin' ? <AdminDashboard /> : <ClientDashboard />}
               </ProtectedRoute>
             }
           />
@@ -32,7 +33,7 @@ function AppContent() {
           <Route
             path="/admin/clients"
             element={
-              <ProtectedRoute allowedRoles={['admin']}>
+              <ProtectedRoute allowedRoles={['root_admin']}>
                 <ManageClients />
               </ProtectedRoute>
             }
@@ -41,8 +42,26 @@ function AppContent() {
           <Route
             path="/admin/matches"
             element={
-              <ProtectedRoute allowedRoles={['admin']}>
+              <ProtectedRoute allowedRoles={['root_admin']}>
                 <ManageMatches />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/admin/leaderboard"
+            element={
+              <ProtectedRoute allowedRoles={['root_admin']}>
+                <Leaderboard />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/leaderboard"
+            element={
+              <ProtectedRoute allowedRoles={['client_admin', 'user']}>
+                <Leaderboard />
               </ProtectedRoute>
             }
           />
@@ -50,7 +69,7 @@ function AppContent() {
           <Route
             path="/predict/:matchId"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['client_admin', 'user']}>
                 <PredictMatch />
               </ProtectedRoute>
             }
@@ -74,4 +93,3 @@ function App() {
 }
 
 export default App;
-
