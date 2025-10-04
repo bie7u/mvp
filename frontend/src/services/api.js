@@ -77,8 +77,19 @@ export const clientService = {
 };
 
 export const matchService = {
-  getMatches: async () => {
-    const response = await api.get('/matches/');
+  getMatches: async (filters = {}) => {
+    const params = new URLSearchParams();
+    if (filters.league && filters.league !== 'all') {
+      params.append('league', filters.league);
+    }
+    if (filters.round && filters.round !== 'all') {
+      params.append('round', filters.round);
+    }
+    if (filters.status && filters.status !== 'all') {
+      params.append('status', filters.status);
+    }
+    const url = params.toString() ? `/matches/?${params.toString()}` : '/matches/';
+    const response = await api.get(url);
     return response.data;
   },
 
