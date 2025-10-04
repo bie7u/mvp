@@ -78,6 +78,25 @@ const translations = {
     accuracy: 'Accuracy',
     viewFullLeaderboard: 'View Full Leaderboard',
     
+    // All Matches
+    allMatches: 'All Matches',
+    allLeagues: 'All Leagues',
+    noMatches: 'No matches available',
+    finalScore: 'Final Score',
+    
+    // My Predictions
+    myPredictions: 'My Predictions',
+    totalPredictions: 'Total Predictions',
+    winningPredictions: 'Winning Predictions',
+    totalPoints: 'Total Points',
+    filterByStatus: 'Filter by Status',
+    filterByLeague: 'Filter by League',
+    allStatus: 'All',
+    processed: 'Processed',
+    winning: 'Winning',
+    losing: 'Losing',
+    actualScore: 'Actual Score',
+    
     // Common
     loading: 'Loading...',
   },
@@ -147,6 +166,25 @@ const translations = {
     player: 'Gracz',
     accuracy: 'Celność',
     viewFullLeaderboard: 'Zobacz pełną tabelę',
+    
+    // All Matches
+    allMatches: 'Wszystkie mecze',
+    allLeagues: 'Wszystkie ligi',
+    noMatches: 'Brak dostępnych meczów',
+    finalScore: 'Wynik końcowy',
+    
+    // My Predictions
+    myPredictions: 'Moje typy',
+    totalPredictions: 'Wszystkie typy',
+    winningPredictions: 'Wygrane typy',
+    totalPoints: 'Wszystkie punkty',
+    filterByStatus: 'Filtruj według statusu',
+    filterByLeague: 'Filtruj według ligi',
+    allStatus: 'Wszystkie',
+    processed: 'Przetworzone',
+    winning: 'Wygrane',
+    losing: 'Przegrane',
+    actualScore: 'Rzeczywisty wynik',
     
     // Common
     loading: 'Ładowanie...',
