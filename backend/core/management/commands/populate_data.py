@@ -40,10 +40,10 @@ class Command(BaseCommand):
                 username='client1',
                 email='client1@example.com',
                 password='client123',
-                role='client',
+                role='client_admin',
                 client=client1
             )
-            self.stdout.write(f'Created client user: {client_user1.username}')
+            self.stdout.write(f'Created client admin user: {client_user1.username}')
 
         # Create regular users
         for i in range(1, 6):
@@ -162,6 +162,6 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS('Sample data created successfully!'))
         self.stdout.write('\nLogin credentials:')
-        self.stdout.write('  Admin: username=admin, password=admin123')
-        self.stdout.write('  Client: username=client1, password=client123')
+        self.stdout.write('  Root Admin: username=admin, password=admin123')
+        self.stdout.write('  Client Admin: username=client1, password=client123')
         self.stdout.write('  User: username=user1, password=user123 (also user2, user3, etc.)')

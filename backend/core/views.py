@@ -14,36 +14,42 @@ from .serializers import (
 User = get_user_model()
 
 
-class IsAdminUser(permissions.BasePermission):
-    """Only admin users can access"""
+class IsRootAdmin(permissions.BasePermission):
+    """Only root admin users can access"""
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.role == 'admin'
+        return request.user and request.user.is_authenticated and request.user.role == 'root_admin'
 
 
-class IsClientOrAdmin(permissions.BasePermission):
-    """Client users and admins can access"""
+class IsClientAdminOrRootAdmin(permissions.BasePermission):
+    """Client admin and root admin can access"""
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.role in ['admin', 'client']
+        return request.user and request.user.is_authenticated and request.user.role in ['root_admin', 'client_admin']
+
+
+class CanPredict(permissions.BasePermission):
+    """Only client_admin and user roles can predict (not root_admin)"""
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.role in ['client_admin', 'user']
 
 
 class UserViewSet(viewsets.ModelViewSet):
     """
     ViewSet for User management
-    Admins can manage all users, clients can only view their own users
+    Root admins can manage all users, client admins can only view their client's users
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
     
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [IsAdminUser()]
+            return [IsClientAdminOrRootAdmin()]
         return [permissions.IsAuthenticated()]
     
     def get_queryset(self):
         user = self.request.user
-        if user.role == 'admin':
+        if user.role == 'root_admin':
             return User.objects.all()
-        elif user.role == 'client':
+        elif user.role == 'client_admin':
             return User.objects.filter(client=user.client)
         else:
             return User.objects.filter(id=user.id)
@@ -63,14 +69,14 @@ class UserViewSet(viewsets.ModelViewSet):
 class ClientViewSet(viewsets.ModelViewSet):
     """
     ViewSet for Client management
-    Only admins can create/update/delete clients
+    Only root admins can create/update/delete clients
     """
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
     
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [IsAdminUser()]
+            return [IsRootAdmin()]
         return [permissions.IsAuthenticated()]
     
     @action(detail=True, methods=['get'])
@@ -99,14 +105,14 @@ class ClientViewSet(viewsets.ModelViewSet):
 class MatchViewSet(viewsets.ModelViewSet):
     """
     ViewSet for Match management
-    Admins can create/update matches, all authenticated users can view
+    Root admins can create/update matches, all authenticated users can view
     """
     queryset = Match.objects.all()
     serializer_class = MatchSerializer
     
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [IsAdminUser()]
+            return [IsRootAdmin()]
         return [permissions.IsAuthenticated()]
     
     @action(detail=False, methods=['get'])
@@ -130,10 +136,10 @@ class MatchViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def update_result(self, request, pk=None):
-        """Update match result and process bets"""
-        if request.user.role != 'admin':
+        """Update match result and process bets - Only root admins can do this"""
+        if request.user.role != 'root_admin':
             return Response(
-                {'error': 'Only admins can update match results'},
+                {'error': 'Only root admins can update match results'},
                 status=status.HTTP_403_FORBIDDEN
             )
         
@@ -163,17 +169,22 @@ class MatchViewSet(viewsets.ModelViewSet):
 class BetViewSet(viewsets.ModelViewSet):
     """
     ViewSet for Bet management
-    Users can only view/create their own bets
+    Only users with CanPredict permission (client_admin and user) can create bets
+    Root admins cannot predict matches
     """
     queryset = Bet.objects.all()
     serializer_class = BetSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_permissions(self):
+        if self.action == 'create':
+            return [CanPredict()]
+        return [permissions.IsAuthenticated()]
     
     def get_queryset(self):
         user = self.request.user
-        if user.role == 'admin':
+        if user.role == 'root_admin':
             return Bet.objects.all()
-        elif user.role == 'client':
+        elif user.role == 'client_admin':
             return Bet.objects.filter(user__client=user.client)
         else:
             return Bet.objects.filter(user=user)
@@ -263,7 +274,7 @@ class BadgeViewSet(viewsets.ModelViewSet):
     
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [IsAdminUser()]
+            return [IsRootAdmin()]
         return [permissions.IsAuthenticated()]
 
 
@@ -277,7 +288,7 @@ class UserBadgeViewSet(viewsets.ReadOnlyModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        if user.role == 'admin':
+        if user.role == 'root_admin':
             return UserBadge.objects.all()
         else:
             return UserBadge.objects.filter(user=user)
