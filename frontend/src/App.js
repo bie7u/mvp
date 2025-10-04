@@ -13,6 +13,8 @@ import ManageMatches from './components/admin/ManageMatches';
 import ClientDashboard from './components/client/ClientDashboard';
 import PredictMatch from './components/client/PredictMatch';
 import Leaderboard from './components/client/Leaderboard';
+import AllMatches from './components/client/AllMatches';
+import MyPredictions from './components/client/MyPredictions';
 
 function AppContent() {
   const { user } = useAuth();
@@ -92,6 +94,24 @@ function AppContent() {
             element={
               <ProtectedRoute allowedRoles={['client_admin', 'user']}>
                 <PredictMatch />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/matches"
+            element={
+              <ProtectedRoute allowedRoles={['client_admin', 'user']}>
+                <AllMatches />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/my-bets"
+            element={
+              <ProtectedRoute allowedRoles={['client_admin', 'user']}>
+                <MyPredictions />
               </ProtectedRoute>
             }
           />
