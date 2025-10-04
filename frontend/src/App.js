@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Navbar from './components/common/Navbar';
+import Footer from './components/common/Footer';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Login from './components/Login';
 import AdminDashboard from './components/admin/AdminDashboard';
@@ -15,14 +16,15 @@ import PredictMatch from './components/client/PredictMatch';
 import Leaderboard from './components/client/Leaderboard';
 import AllMatches from './components/client/AllMatches';
 import MyPredictions from './components/client/MyPredictions';
+import LeagueStandings from './components/client/LeagueStandings';
 
 function AppContent() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors flex flex-col">
       {user && <Navbar />}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         <Routes>
           <Route path="/login" element={<Login />} />
           
@@ -90,6 +92,15 @@ function AppContent() {
           />
           
           <Route
+            path="/standings"
+            element={
+              <ProtectedRoute allowedRoles={['root_admin', 'client_admin', 'user']}>
+                <LeagueStandings />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
             path="/predict/:matchId"
             element={
               <ProtectedRoute allowedRoles={['client_admin', 'user']}>
@@ -119,6 +130,7 @@ function AppContent() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
+      {user && <Footer />}
     </div>
   );
 }

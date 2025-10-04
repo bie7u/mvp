@@ -105,12 +105,20 @@ const ClientDashboard = () => {
               ))}
             </div>
           )}
-          <Link
-            to="/matches"
-            className="block mt-4 text-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold hover:underline"
-          >
-            {t('viewAllMatches')} →
-          </Link>
+          <div className="flex gap-2 mt-4">
+            <Link
+              to="/matches"
+              className="flex-1 block text-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold hover:underline"
+            >
+              {t('viewAllMatches')} →
+            </Link>
+            <Link
+              to="/standings"
+              className="flex-1 block text-center text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-semibold hover:underline"
+            >
+              {t('leagueStandings')} →
+            </Link>
+          </div>
         </Card>
 
         {/* My Recent Bets */}
