@@ -39,9 +39,9 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 if not User.objects.filter(username='admin').exists():
     admin = User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
-    admin.role = 'admin'
+    admin.role = 'root_admin'
     admin.save()
-    print('✅ Admin user created: username=admin, password=admin123')
+    print('✅ Root admin user created: username=admin, password=admin123')
 else:
     print('ℹ️  Admin user already exists')
 "
@@ -86,8 +86,8 @@ echo ""
 echo "3. Open http://localhost:3000 in your browser"
 echo ""
 echo "Login credentials:"
-echo "  Admin: username=admin, password=admin123"
-echo "  Client: username=client1, password=client123"
+echo "  Root Admin: username=admin, password=admin123"
+echo "  Client Admin: username=client1, password=client123"
 echo "  User: username=user1, password=user123"
 echo ""
 echo "Happy predicting! ⚽"

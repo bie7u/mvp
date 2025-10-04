@@ -11,27 +11,27 @@ const Leaderboard = () => {
   const [viewType, setViewType] = useState('client'); // 'client' or 'global'
 
   useEffect(() => {
-    loadLeaderboard();
-  }, [viewType]);
-
-  const loadLeaderboard = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      let data;
-      if (user.role === 'root_admin' || viewType === 'global') {
-        data = await leaderboardService.getGlobalRanking();
-      } else {
-        data = await leaderboardService.getClientRanking();
+    const loadLeaderboard = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        let data;
+        if (user.role === 'root_admin' || viewType === 'global') {
+          data = await leaderboardService.getGlobalRanking();
+        } else {
+          data = await leaderboardService.getClientRanking();
+        }
+        setRankings(data);
+      } catch (err) {
+        console.error('Failed to load leaderboard:', err);
+        setError('Failed to load leaderboard data');
+      } finally {
+        setLoading(false);
       }
-      setRankings(data);
-    } catch (err) {
-      console.error('Failed to load leaderboard:', err);
-      setError('Failed to load leaderboard data');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    loadLeaderboard();
+  }, [viewType, user.role]);
 
   const getMedalEmoji = (rank) => {
     switch (rank) {
