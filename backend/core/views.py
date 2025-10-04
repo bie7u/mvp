@@ -115,6 +115,29 @@ class MatchViewSet(viewsets.ModelViewSet):
             return [IsRootAdmin()]
         return [permissions.IsAuthenticated()]
     
+    def get_queryset(self):
+        """
+        Optionally filter matches by league, round, and status
+        """
+        queryset = Match.objects.all()
+        
+        # Filter by league
+        league = self.request.query_params.get('league', None)
+        if league and league != 'all':
+            queryset = queryset.filter(league=league)
+        
+        # Filter by round
+        round_param = self.request.query_params.get('round', None)
+        if round_param and round_param != 'all':
+            queryset = queryset.filter(round=round_param)
+        
+        # Filter by status
+        status_param = self.request.query_params.get('status', None)
+        if status_param and status_param != 'all':
+            queryset = queryset.filter(status=status_param)
+        
+        return queryset
+    
     @action(detail=False, methods=['get'])
     def upcoming(self, request):
         """Get upcoming matches"""

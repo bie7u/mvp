@@ -60,7 +60,7 @@ const PredictMatch = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <Card title="⚽ Make Your Prediction">
         <div className="mb-6 p-4 bg-blue-50 rounded-lg">
           <div className="text-center">
