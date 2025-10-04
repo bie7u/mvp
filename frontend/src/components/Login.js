@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -9,7 +10,8 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
-  const { t } = useLanguage();
+  const { language, toggleLanguage, t } = useLanguage();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -30,6 +32,23 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 dark:from-blue-900 dark:via-purple-900 dark:to-pink-900 flex items-center justify-center px-4 py-12 transition-colors">
       <div className="max-w-md w-full">
+        {/* Language and Theme Toggle */}
+        <div className="flex justify-end gap-2 mb-4">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg bg-white/20 dark:bg-gray-800/40 hover:bg-white/30 dark:hover:bg-gray-700/50 backdrop-blur-sm transition-colors"
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDark ? '☀️' : '🌙'}
+          </button>
+          <button
+            onClick={toggleLanguage}
+            className="px-3 py-2 rounded-lg bg-white/20 dark:bg-gray-800/40 hover:bg-white/30 dark:hover:bg-gray-700/50 backdrop-blur-sm transition-colors font-medium text-white"
+            title={language === 'en' ? 'Przełącz na polski' : 'Switch to English'}
+          >
+            {language === 'en' ? '🇵🇱 PL' : '🇬🇧 EN'}
+          </button>
+        </div>
         {/* Floating Animation Container */}
         <div className="animate-float">
           <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20 dark:border-gray-700/20 transition-colors">
