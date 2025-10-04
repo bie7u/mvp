@@ -6,6 +6,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import Login from './components/Login';
 import AdminDashboard from './components/admin/AdminDashboard';
 import ManageClients from './components/admin/ManageClients';
+import ManageUsers from './components/admin/ManageUsers';
 import ManageMatches from './components/admin/ManageMatches';
 import ClientDashboard from './components/client/ClientDashboard';
 import PredictMatch from './components/client/PredictMatch';
@@ -35,6 +36,24 @@ function AppContent() {
             element={
               <ProtectedRoute allowedRoles={['root_admin']}>
                 <ManageClients />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute allowedRoles={['root_admin', 'client_admin']}>
+                <ManageUsers />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute allowedRoles={['client_admin']}>
+                <ManageUsers />
               </ProtectedRoute>
             }
           />

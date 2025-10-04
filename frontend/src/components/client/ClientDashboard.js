@@ -48,6 +48,26 @@ const ClientDashboard = () => {
         </div>
       </div>
 
+      {/* Client Admin Quick Actions */}
+      {user.role === 'client_admin' && (
+        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-l-4 border-blue-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-bold text-gray-800 mb-1">👥 Client Admin</h3>
+              <p className="text-gray-700 text-sm">
+                You can manage users for your company
+              </p>
+            </div>
+            <Link
+              to="/users"
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all"
+            >
+              Manage Users
+            </Link>
+          </div>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Upcoming Matches */}
         <Card>
