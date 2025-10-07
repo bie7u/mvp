@@ -1,0 +1,84 @@
+.
+├── API_DOCS.md
+├── CONTRIBUTING.md
+├── DEPLOYMENT.md
+├── IMPLEMENTATION.md
+├── PROJECT_STRUCTURE.txt
+├── QUICKSTART.md
+├── README.md
+├── backend
+│   ├── Dockerfile
+│   ├── accounts
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── management
+│   │   ├── migrations
+│   │   ├── models.py
+│   │   ├── permissions.py
+│   │   ├── serializers.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── companies
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── migrations
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── config
+│   │   ├── __init__.py
+│   │   ├── asgi.py
+│   │   ├── celery.py
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── entrypoint.sh
+│   ├── manage.py
+│   ├── matches
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── migrations
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── tasks.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── predictions
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── migrations
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── tasks.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   └── requirements.txt
+├── docker-compose.yml
+└── frontend
+    ├── Dockerfile
+    ├── index.html
+    ├── package.json
+    ├── postcss.config.js
+    ├── src
+    │   ├── App.jsx
+    │   ├── components
+    │   ├── hooks
+    │   ├── index.css
+    │   ├── main.jsx
+    │   ├── pages
+    │   ├── services
+    │   ├── store
+    │   └── utils
+    ├── tailwind.config.js
+    └── vite.config.js
+
+20 directories, 62 files
