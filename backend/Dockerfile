@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     build-essential \
     libpq-dev \
+    netcat-traditional \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements
@@ -21,5 +22,12 @@ RUN pip install --upgrade pip && \
 # Copy project
 COPY . /app/
 
-# Run migrations and collect static files on startup
-CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"]
+# Make entrypoint script executable
+RUN chmod +x /app/entrypoint.sh
+
+# Expose port
+EXPOSE 8000
+
+# Run entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
+
