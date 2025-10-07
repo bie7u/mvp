@@ -65,25 +65,30 @@ This platform allows companies to create private leagues where employees can pre
 
 3. **Build and run with Docker:**
    ```bash
-   docker-compose up --build
+   docker compose up --build
+   ```
+   
+   The application will automatically:
+   - Set up the database with all migrations
+   - Initialize the backend server
+   - Start the frontend development server
+   - Start Celery workers for background tasks
+
+4. **Create a superuser (Root Admin):**
+   ```bash
+   docker compose exec backend python manage.py createsuperuser
    ```
 
-4. **Run migrations:**
+5. **Initialize leagues (optional):**
    ```bash
-   docker-compose exec backend python manage.py migrate
-   ```
-
-5. **Create a superuser (Root Admin):**
-   ```bash
-   docker-compose exec backend python manage.py createsuperuser
-   ```
-
-6. **Initialize leagues (optional):**
-   ```bash
-   docker-compose exec backend python manage.py shell
+   docker compose exec backend python manage.py shell
    >>> from matches.tasks import fetch_leagues
    >>> fetch_leagues()
    ```
+
+### Troubleshooting
+
+If you encounter issues, please refer to the [Docker Setup Guide](DOCKER_SETUP.md) for detailed troubleshooting steps.
 
 ### Access the Application
 
