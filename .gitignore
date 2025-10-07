@@ -47,6 +47,7 @@ yarn-error.log
 /frontend/build
 /frontend/.next
 /frontend/out
+/frontend/dist
 
 # Testing
 /coverage
