@@ -6,6 +6,7 @@ function Predictions() {
   const [selectedLeague, setSelectedLeague] = useState('all');
   const [selectedRound, setSelectedRound] = useState('all');
   const [predictions, setPredictions] = useState({});
+  const [successMessage, setSuccessMessage] = useState(null);
   const queryClient = useQueryClient();
 
   // Fetch matches grouped by league
@@ -67,8 +68,20 @@ function Predictions() {
   // Submit prediction
   const handlePredictionSubmit = async (match) => {
     const predictionData = predictions[match.id];
-    if (!predictionData?.home_score || !predictionData?.away_score) {
-      alert('Please enter both scores');
+    if (!predictionData?.home_score && predictionData?.home_score !== 0) {
+      alert('Please enter home team score');
+      return;
+    }
+    if (!predictionData?.away_score && predictionData?.away_score !== 0) {
+      alert('Please enter away team score');
+      return;
+    }
+
+    const homeScore = parseInt(predictionData.home_score);
+    const awayScore = parseInt(predictionData.away_score);
+
+    if (isNaN(homeScore) || isNaN(awayScore) || homeScore < 0 || awayScore < 0) {
+      alert('Please enter valid scores (0 or greater)');
       return;
     }
 
@@ -80,15 +93,15 @@ function Predictions() {
           id: existingPrediction.id,
           data: {
             match: match.id,
-            home_score: parseInt(predictionData.home_score),
-            away_score: parseInt(predictionData.away_score),
+            home_score: homeScore,
+            away_score: awayScore,
           },
         });
       } else {
         await createPrediction.mutateAsync({
           match: match.id,
-          home_score: parseInt(predictionData.home_score),
-          away_score: parseInt(predictionData.away_score),
+          home_score: homeScore,
+          away_score: awayScore,
         });
       }
 
@@ -98,8 +111,14 @@ function Predictions() {
         delete newPredictions[match.id];
         return newPredictions;
       });
+
+      // Show success message
+      setSuccessMessage(
+        existingPrediction ? 'Prediction updated successfully!' : 'Prediction saved successfully!'
+      );
+      setTimeout(() => setSuccessMessage(null), 3000);
     } catch (error) {
-      alert(error.response?.data?.error || 'Failed to save prediction');
+      alert(error.response?.data?.error || error.response?.data?.detail || 'Failed to save prediction');
     }
   };
 
@@ -151,6 +170,13 @@ function Predictions() {
   return (
     <div className="px-4 sm:px-0">
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Match Predictions</h1>
+
+      {/* Success Message */}
+      {successMessage && (
+        <div className="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
+          {successMessage}
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white shadow rounded-lg p-4 mb-6">
