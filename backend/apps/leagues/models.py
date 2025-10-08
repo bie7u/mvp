@@ -12,7 +12,7 @@ class League(models.Model):
         ('ekstraklasa', 'Ekstraklasa'),
     )
     
-    name = models.CharField(max_length=100, choices=LEAGUE_CHOICES, unique=True)
+    name = models.CharField(max_length=100, choices=LEAGUE_CHOICES)
     api_football_id = models.IntegerField(unique=True, null=True, blank=True)
     country = models.CharField(max_length=100)
     season = models.CharField(max_length=10)  # e.g., "2023-2024"

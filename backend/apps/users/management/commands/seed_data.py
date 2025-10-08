@@ -2,6 +2,9 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from apps.companies.models import Company, ScoringConfig
 from apps.leagues.models import League
+from apps.matches.models import Match
+from apps.predictions.models import Prediction
+from apps.rankings.models import Ranking
 from datetime import datetime, timedelta
 from django.utils import timezone
 
@@ -91,6 +94,118 @@ class Command(BaseCommand):
                     nickname=f'Player {i}'
                 )
                 self.stdout.write(self.style.SUCCESS(f'Created employee user: {username} (password: employee123)'))
+
+        # Create sample matches
+        self.stdout.write('Creating sample matches...')
+        now = timezone.now()
+        
+        # Create some upcoming matches
+        upcoming_matches = [
+            {
+                'home_team': 'Manchester United',
+                'away_team': 'Liverpool',
+                'round': 'Regular Season - 10',
+                'kickoff_time': now + timedelta(days=2),
+            },
+            {
+                'home_team': 'Arsenal',
+                'away_team': 'Chelsea',
+                'round': 'Regular Season - 10',
+                'kickoff_time': now + timedelta(days=3),
+            },
+            {
+                'home_team': 'Manchester City',
+                'away_team': 'Tottenham',
+                'round': 'Regular Season - 10',
+                'kickoff_time': now + timedelta(days=4),
+            },
+        ]
+        
+        for match_data in upcoming_matches:
+            match, created = Match.objects.get_or_create(
+                league=premier_league,
+                home_team=match_data['home_team'],
+                away_team=match_data['away_team'],
+                round=match_data['round'],
+                defaults={
+                    'kickoff_time': match_data['kickoff_time'],
+                    'status': 'scheduled',
+                }
+            )
+            if created:
+                self.stdout.write(self.style.SUCCESS(f'Created match: {match.home_team} vs {match.away_team}'))
+        
+        # Create some finished matches with results
+        finished_matches = [
+            {
+                'home_team': 'Newcastle',
+                'away_team': 'Brighton',
+                'round': 'Regular Season - 9',
+                'kickoff_time': now - timedelta(days=3),
+                'home_score': 2,
+                'away_score': 1,
+            },
+            {
+                'home_team': 'Aston Villa',
+                'away_team': 'West Ham',
+                'round': 'Regular Season - 9',
+                'kickoff_time': now - timedelta(days=2),
+                'home_score': 1,
+                'away_score': 1,
+            },
+            {
+                'home_team': 'Everton',
+                'away_team': 'Fulham',
+                'round': 'Regular Season - 9',
+                'kickoff_time': now - timedelta(days=1),
+                'home_score': 3,
+                'away_score': 0,
+            },
+        ]
+        
+        for match_data in finished_matches:
+            match, created = Match.objects.get_or_create(
+                league=premier_league,
+                home_team=match_data['home_team'],
+                away_team=match_data['away_team'],
+                round=match_data['round'],
+                defaults={
+                    'kickoff_time': match_data['kickoff_time'],
+                    'status': 'finished',
+                    'home_score': match_data['home_score'],
+                    'away_score': match_data['away_score'],
+                }
+            )
+            if created:
+                self.stdout.write(self.style.SUCCESS(f'Created finished match: {match.home_team} {match.home_score}-{match.away_score} {match.away_team}'))
+        
+        # Create sample predictions for finished matches
+        self.stdout.write('Creating sample predictions...')
+        finished_match_objs = Match.objects.filter(status='finished')
+        employees = User.objects.filter(role='employee', company=company)
+        
+        for employee in employees:
+            for match in finished_match_objs:
+                # Create varied predictions
+                import random
+                prediction, created = Prediction.objects.get_or_create(
+                    user=employee,
+                    match=match,
+                    defaults={
+                        'home_score': random.randint(0, 3),
+                        'away_score': random.randint(0, 3),
+                    }
+                )
+                if created:
+                    prediction.save()  # Trigger points calculation
+        
+        # Update rankings
+        self.stdout.write('Creating rankings...')
+        current_year = now.year
+        season = f"{current_year}-{current_year + 1}"
+        Ranking.update_rankings(company, 'season', season)
+        
+        self.stdout.write(self.style.SUCCESS('Sample data created successfully!'))
 
         self.stdout.write(self.style.SUCCESS('Database seeding completed!'))
         self.stdout.write(self.style.WARNING('\nTest credentials:'))
