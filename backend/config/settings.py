@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_spectacular',
     'django_celery_beat',
+    'django_crontab',
     
     # Local apps
     'accounts',
@@ -203,6 +204,12 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+
+# Django Crontab Configuration
+CRONJOBS = [
+    ('*/5 * * * *', 'matches.cron.UpdateMatchDataCronJob'),  # Every 5 minutes
+    ('0 * * * *', 'predictions.cron.UpdateRankingsCronJob'),  # Every hour
+]
 
 # Spectacular Settings
 SPECTACULAR_SETTINGS = {
