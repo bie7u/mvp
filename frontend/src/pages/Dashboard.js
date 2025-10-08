@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { matchesAPI, predictionsAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -8,11 +8,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [matchesRes, predictionsRes] = await Promise.all([
         matchesAPI.getMatches({ status: 'scheduled' }),
@@ -31,7 +27,11 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handlePredictionSubmit = async (matchId, homeScore, awayScore) => {
     try {

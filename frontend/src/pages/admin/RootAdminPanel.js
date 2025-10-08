@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { companiesAPI, usersAPI, leaguesAPI } from '../../services/api';
+import { companiesAPI, leaguesAPI } from '../../services/api';
 
 const RootAdminPanel = () => {
   const [activeTab, setActiveTab] = useState('companies');
