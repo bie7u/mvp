@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('leagues', '0001_remove_name_unique_constraint'),
+        ('leagues', '0001_initial'),
     ]
 
     operations = [
