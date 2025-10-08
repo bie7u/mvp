@@ -1,4 +1,3 @@
-from celery import shared_task
 from django.utils import timezone
 from django.db.models import Sum, Count, Q
 from datetime import datetime, timedelta
@@ -10,7 +9,6 @@ from matches.models import Match
 logger = logging.getLogger(__name__)
 
 
-@shared_task
 def calculate_prediction_points(match_id):
     """Calculate points for all predictions of a finished match"""
     
@@ -34,7 +32,7 @@ def calculate_prediction_points(match_id):
         company_ids = predictions.values_list('user__company_id', flat=True).distinct()
         for company_id in company_ids:
             if company_id:
-                update_company_rankings.delay(company_id)
+                update_company_rankings(company_id)
         
     except Match.DoesNotExist:
         logger.error(f"Match {match_id} not found")
@@ -42,7 +40,6 @@ def calculate_prediction_points(match_id):
         logger.error(f"Error calculating prediction points for match {match_id}: {str(e)}")
 
 
-@shared_task
 def update_rankings():
     """Update rankings for all companies"""
     
@@ -51,13 +48,12 @@ def update_rankings():
     companies = Company.objects.filter(is_active=True)
     
     for company in companies:
-        update_company_rankings.delay(company.id)
+        update_company_rankings(company.id)
     
     logger.info(f"Triggered ranking updates for {companies.count()} companies")
     return "Rankings update triggered"
 
 
-@shared_task
 def update_company_rankings(company_id):
     """Update rankings for a specific company"""
     

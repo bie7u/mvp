@@ -1,4 +1,3 @@
-from celery import shared_task
 from django.conf import settings
 from django.utils import timezone
 import requests
@@ -9,7 +8,6 @@ from .models import League, Team, Match
 logger = logging.getLogger(__name__)
 
 
-@shared_task
 def update_match_data():
     """Update match data from API-Football"""
     
@@ -123,7 +121,7 @@ def update_match_from_api(fixture_data, league):
         # If match is finished, calculate prediction points
         if match_status == Match.Status.FINISHED and match.home_score is not None:
             from predictions.tasks import calculate_prediction_points
-            calculate_prediction_points.delay(match.id)
+            calculate_prediction_points(match.id)
         
         action = "Created" if created else "Updated"
         logger.info(f"{action} match: {match}")
@@ -132,7 +130,6 @@ def update_match_from_api(fixture_data, league):
         logger.error(f"Error updating match from API: {str(e)}")
 
 
-@shared_task
 def fetch_leagues():
     """Fetch and update league data from API-Football"""
     

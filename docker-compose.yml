@@ -75,11 +75,19 @@ services:
       - db
       - redis
 
-  celery-beat:
+  cron:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: >
+      sh -c "
+        while true; do
+          python manage.py runjobs quarter_hourly && sleep 900;
+        done &
+        while true; do
+          python manage.py runjobs hourly && sleep 3600;
+        done
+      "
     volumes:
       - ./backend:/app
     environment:
@@ -87,8 +95,6 @@ services:
       - DEBUG=True
       - SECRET_KEY=${SECRET_KEY:-django-insecure-change-in-production}
       - API_FOOTBALL_KEY=${API_FOOTBALL_KEY:-your-api-key-here}
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     depends_on:
       - db
       - redis
