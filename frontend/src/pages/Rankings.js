@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { rankingsAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -8,11 +8,7 @@ const Rankings = () => {
   const [period, setPeriod] = useState('season');
   const { user } = useAuth();
 
-  useEffect(() => {
-    fetchRankings();
-  }, [period]);
-
-  const fetchRankings = async () => {
+  const fetchRankings = useCallback(async () => {
     try {
       const response = await rankingsAPI.getRankings({
         company: user?.company,
@@ -24,7 +20,11 @@ const Rankings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.company, period]);
+
+  useEffect(() => {
+    fetchRankings();
+  }, [fetchRankings]);
 
   if (loading) {
     return (
