@@ -75,6 +75,30 @@ services:
       - db
       - redis
 
+  cron:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: >
+      sh -c "
+        while true; do
+          python manage.py runjobs quarter_hourly && sleep 900;
+        done &
+        while true; do
+          python manage.py runjobs hourly && sleep 3600;
+        done
+      "
+    volumes:
+      - ./backend:/app
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-football_predictions}
+      - DEBUG=True
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-change-in-production}
+      - API_FOOTBALL_KEY=${API_FOOTBALL_KEY:-your-api-key-here}
+    depends_on:
+      - db
+      - redis
+
   frontend:
     build:
       context: ./frontend
