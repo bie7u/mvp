@@ -213,6 +213,63 @@ Request:
 }
 ```
 
+### List League Standings
+**GET** `/api/leagues/standings/`
+
+Query Parameters:
+- `league`: Filter by league ID
+
+Response:
+```json
+{
+  "results": [
+    {
+      "id": 1,
+      "league": 1,
+      "league_name": "Premier League",
+      "rank": 1,
+      "team_name": "Manchester City",
+      "team_logo": "https://...",
+      "played": 38,
+      "won": 28,
+      "drawn": 5,
+      "lost": 5,
+      "goals_for": 94,
+      "goals_against": 33,
+      "goal_difference": 61,
+      "points": 89,
+      "form": "WWDWL",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  ]
+}
+```
+
+### Get Standing Details
+**GET** `/api/leagues/standings/{id}/`
+
+Response:
+```json
+{
+  "id": 1,
+  "league": 1,
+  "league_name": "Premier League",
+  "rank": 1,
+  "team_name": "Manchester City",
+  "team_logo": "https://...",
+  "played": 38,
+  "won": 28,
+  "drawn": 5,
+  "lost": 5,
+  "goals_for": 94,
+  "goals_against": 33,
+  "goal_difference": 61,
+  "points": 89,
+  "form": "WWDWL",
+  "updated_at": "2024-01-01T00:00:00Z"
+}
+```
+
 ## Matches
 
 ### List Matches

@@ -112,9 +112,23 @@ mvp/
    # Add other leagues similarly
    ```
 
-3. **Fetch match data**
+3. **Fetch match data and standings**
    ```bash
+   # Fetch all season fixtures and standings
    docker-compose exec backend python manage.py fetch_match_data
+   
+   # Or fetch specific data:
+   # - Fetch only fixtures
+   docker-compose exec backend python manage.py fetch_match_data --fetch-fixtures
+   
+   # - Fetch only standings
+   docker-compose exec backend python manage.py fetch_match_data --fetch-standings
+   
+   # - Update results only
+   docker-compose exec backend python manage.py fetch_match_data --update-results
+   
+   # - Fetch for a specific league
+   docker-compose exec backend python manage.py fetch_match_data --league premier_league
    ```
 
 ## 🔧 Development
@@ -220,15 +234,24 @@ npm run build
 - Edit own profile
 - Manage notification preferences
 
-## 🔄 Cron Jobs
+## 🔄 Cron Jobs & Data Management
 
 The application runs a cron job every 5 minutes to:
-1. Fetch upcoming fixtures from API-Football
+1. Fetch all season fixtures from API-Football
 2. Update results for finished matches
-3. Recalculate prediction points
-4. Update rankings
+3. Fetch league standings/tables
+4. Recalculate prediction points
+5. Update rankings
 
 **Manual trigger:**
+```bash
+docker-compose exec backend python manage.py fetch_match_data
+
+# With specific options:
+docker-compose exec backend python manage.py fetch_match_data --fetch-fixtures --fetch-standings
+docker-compose exec backend python manage.py fetch_match_data --update-results
+docker-compose exec backend python manage.py fetch_match_data --league "premier_league"
+```
 ```bash
 docker-compose exec backend python manage.py fetch_match_data
 ```

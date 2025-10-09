@@ -1,3 +1,62 @@
+# Changelog
+
+## [Latest] - Enhanced Admin Panel and Match Data Management
+
+### Added
+- **Enhanced Django Admin Interface for Companies**
+  - Added inline user management directly in Company admin
+  - Added inline league assignment in Company admin
+  - Added inline scoring configuration in Company admin
+  - Display user count and league count in company list
+  - Improved Company admin with better organization
+
+- **Enhanced Django Admin Interface for Users**
+  - Added autocomplete for company field
+  - Improved user creation form with all necessary fields
+  - Added formatted creation date display
+  - Better list filters and search functionality
+
+- **League Standings Support**
+  - Created new `Standing` model to track league tables
+  - Added API endpoint `/api/leagues/standings/` for viewing standings
+  - Integrated standings fetch in `fetch_match_data` command
+  - Standings show rank, team stats, points, and form
+
+- **Improved Match Data Fetching**
+  - Changed `fetch_match_data` command to fetch ALL season fixtures instead of just next 50
+  - Added `--fetch-standings` option to fetch league tables
+  - Added `--league` parameter to filter by specific league
+  - Better organization: `--fetch-fixtures`, `--update-results`, `--fetch-standings`
+  - More informative console output with warnings and success messages
+
+### Changed
+- **Match Fetch Behavior**: Now fetches entire season's fixtures in one command instead of incrementally
+- **Admin Interface**: Company and User models now have comprehensive inline management
+- **API Documentation**: Updated with new standings endpoints
+
+### Fixed
+- Root admin can now properly manage clients (companies) through Django admin
+- Client admin can view and manage their company users through Django admin
+- Match fetching now gets all league matches for complete season data
+- Standings are now available for all active leagues
+
+### Files Modified
+- `backend/apps/companies/admin.py` - Enhanced with inlines
+- `backend/apps/users/admin.py` - Enhanced with better fields
+- `backend/apps/leagues/admin.py` - Added Standing admin
+- `backend/apps/leagues/models.py` - Added Standing model
+- `backend/apps/leagues/serializers.py` - Added StandingSerializer
+- `backend/apps/leagues/views.py` - Added StandingViewSet
+- `backend/apps/leagues/urls.py` - Added standings routes
+- `backend/apps/matches/management/commands/fetch_match_data.py` - Enhanced command
+- `API.md` - Added standings documentation
+- `README.md` - Updated with new command options
+
+### Migration Files
+- `backend/apps/leagues/migrations/0002_standing.py` - Standing model migration
+
+---
+
 # Changelog - Admin Panel and Data Issues Fix
 
 ## Issues Fixed
