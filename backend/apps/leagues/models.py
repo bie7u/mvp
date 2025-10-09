@@ -26,3 +26,30 @@ class League(models.Model):
     class Meta:
         ordering = ['name']
         unique_together = ['name', 'season']
+
+
+class Standing(models.Model):
+    """League standings/table for teams"""
+    
+    league = models.ForeignKey(League, on_delete=models.CASCADE, related_name='standings')
+    rank = models.IntegerField()
+    team_name = models.CharField(max_length=200)
+    team_logo = models.URLField(blank=True, null=True)
+    played = models.IntegerField(default=0)
+    won = models.IntegerField(default=0)
+    drawn = models.IntegerField(default=0)
+    lost = models.IntegerField(default=0)
+    goals_for = models.IntegerField(default=0)
+    goals_against = models.IntegerField(default=0)
+    goal_difference = models.IntegerField(default=0)
+    points = models.IntegerField(default=0)
+    form = models.CharField(max_length=50, blank=True)  # e.g., "WWDLL"
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['league', 'rank']
+        unique_together = ['league', 'team_name']
+        verbose_name_plural = 'Standings'
+    
+    def __str__(self):
+        return f"{self.rank}. {self.team_name} ({self.league.get_name_display()})"

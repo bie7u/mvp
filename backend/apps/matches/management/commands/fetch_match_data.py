@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.utils import timezone
 from apps.matches.models import Match
-from apps.leagues.models import League
+from apps.leagues.models import League, Standing
 from apps.predictions.models import Prediction
 from apps.rankings.models import Ranking
 
@@ -14,29 +14,45 @@ class Command(BaseCommand):
         parser.add_argument(
             '--fetch-fixtures',
             action='store_true',
-            help='Fetch upcoming fixtures',
+            help='Fetch all season fixtures',
         )
         parser.add_argument(
             '--update-results',
             action='store_true',
             help='Update finished match results',
         )
+        parser.add_argument(
+            '--fetch-standings',
+            action='store_true',
+            help='Fetch league standings',
+        )
+        parser.add_argument(
+            '--league',
+            type=str,
+            help='Fetch fixtures for a specific league (by name or id)',
+        )
 
     def handle(self, *args, **options):
+        league_filter = options.get('league')
+        
         if options['fetch_fixtures']:
-            self.fetch_fixtures()
+            self.fetch_fixtures(league_filter)
         
         if options['update_results']:
             self.update_results()
         
-        # If no specific option, do both
-        if not options['fetch_fixtures'] and not options['update_results']:
-            self.fetch_fixtures()
+        if options['fetch_standings']:
+            self.fetch_standings(league_filter)
+        
+        # If no specific option, do all
+        if not options['fetch_fixtures'] and not options['update_results'] and not options['fetch_standings']:
+            self.fetch_fixtures(league_filter)
             self.update_results()
+            self.fetch_standings(league_filter)
 
-    def fetch_fixtures(self):
-        """Fetch upcoming fixtures from API-Football"""
-        self.stdout.write('Fetching fixtures from API-Football...')
+    def fetch_fixtures(self, league_filter=None):
+        """Fetch ALL fixtures for the season from API-Football"""
+        self.stdout.write('Fetching ALL season fixtures from API-Football...')
         
         if not settings.API_FOOTBALL_KEY:
             self.stdout.write(self.style.WARNING('API_FOOTBALL_KEY not set. Skipping fixture fetch.'))
@@ -46,16 +62,27 @@ class Command(BaseCommand):
             'x-apisports-key': settings.API_FOOTBALL_KEY
         }
 
-        # Fetch fixtures for each active league
-        for league in League.objects.filter(is_active=True):
+        # Get leagues to fetch
+        leagues = League.objects.filter(is_active=True)
+        if league_filter:
+            # Try to filter by id or name
+            if league_filter.isdigit():
+                leagues = leagues.filter(id=int(league_filter))
+            else:
+                leagues = leagues.filter(name__icontains=league_filter)
+
+        # Fetch ALL fixtures for each active league
+        for league in leagues:
             if not league.api_football_id:
+                self.stdout.write(
+                    self.style.WARNING(f'Skipping {league.get_name_display()} - no API ID configured')
+                )
                 continue
 
             url = f"{settings.API_FOOTBALL_URL}/fixtures"
             params = {
                 'league': league.api_football_id,
                 'season': league.season.split('-')[0],  # e.g., "2023" from "2023-2024"
-                'next': 50  # Fetch next 50 matches
             }
 
             try:
@@ -64,12 +91,20 @@ class Command(BaseCommand):
                 data = response.json()
 
                 if data.get('results', 0) > 0:
+                    fixtures_count = 0
                     for fixture in data.get('response', []):
                         self.create_or_update_match(league, fixture)
+                        fixtures_count += 1
                     
                     self.stdout.write(
                         self.style.SUCCESS(
-                            f'Fetched {data.get("results")} fixtures for {league.get_name_display()}'
+                            f'Fetched {fixtures_count} fixtures for {league.get_name_display()} ({league.season})'
+                        )
+                    )
+                else:
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f'No fixtures found for {league.get_name_display()} ({league.season})'
                         )
                     )
             except requests.RequestException as e:
@@ -208,3 +243,84 @@ class Command(BaseCommand):
             Ranking.update_rankings(company, 'season', season)
         
         self.stdout.write(self.style.SUCCESS('Updated predictions and rankings'))
+    
+    def fetch_standings(self, league_filter=None):
+        """Fetch league standings from API-Football"""
+        self.stdout.write('Fetching league standings from API-Football...')
+        
+        if not settings.API_FOOTBALL_KEY:
+            self.stdout.write(self.style.WARNING('API_FOOTBALL_KEY not set. Skipping standings fetch.'))
+            return
+
+        headers = {
+            'x-apisports-key': settings.API_FOOTBALL_KEY
+        }
+
+        # Get leagues to fetch
+        leagues = League.objects.filter(is_active=True)
+        if league_filter:
+            # Try to filter by id or name
+            if league_filter.isdigit():
+                leagues = leagues.filter(id=int(league_filter))
+            else:
+                leagues = leagues.filter(name__icontains=league_filter)
+
+        # Fetch standings for each active league
+        for league in leagues:
+            if not league.api_football_id:
+                self.stdout.write(
+                    self.style.WARNING(f'Skipping {league.get_name_display()} - no API ID configured')
+                )
+                continue
+
+            url = f"{settings.API_FOOTBALL_URL}/standings"
+            params = {
+                'league': league.api_football_id,
+                'season': league.season.split('-')[0],
+            }
+
+            try:
+                response = requests.get(url, headers=headers, params=params, timeout=10)
+                response.raise_for_status()
+                data = response.json()
+
+                if data.get('results', 0) > 0:
+                    standings_data = data.get('response', [])[0]
+                    league_standings = standings_data.get('league', {}).get('standings', [[]])[0]
+                    
+                    # Clear existing standings for this league
+                    Standing.objects.filter(league=league).delete()
+                    
+                    # Create new standings
+                    for team_data in league_standings:
+                        Standing.objects.create(
+                            league=league,
+                            rank=team_data['rank'],
+                            team_name=team_data['team']['name'],
+                            team_logo=team_data['team']['logo'],
+                            played=team_data['all']['played'],
+                            won=team_data['all']['win'],
+                            drawn=team_data['all']['draw'],
+                            lost=team_data['all']['lose'],
+                            goals_for=team_data['all']['goals']['for'],
+                            goals_against=team_data['all']['goals']['against'],
+                            goal_difference=team_data['goalsDiff'],
+                            points=team_data['points'],
+                            form=team_data.get('form', ''),
+                        )
+                    
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f'Updated standings for {league.get_name_display()} ({len(league_standings)} teams)'
+                        )
+                    )
+                else:
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f'No standings found for {league.get_name_display()}'
+                        )
+                    )
+            except requests.RequestException as e:
+                self.stdout.write(
+                    self.style.ERROR(f'Error fetching standings for {league.get_name_display()}: {str(e)}')
+                )
