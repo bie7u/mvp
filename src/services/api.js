@@ -27,6 +27,7 @@ export const analyticsService = {
 
 export const userService = {
   getUsers: () => api.get('/users'),
+  updateUserClient: (userId, clientId) => api.patch(`/users/${userId}/client`, { clientId }),
 };
 
 export const clientService = {

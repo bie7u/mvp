@@ -1,27 +1,55 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, UserPlus } from 'lucide-react';
-import { userService } from '../services/api';
+import { userService, clientService } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const Users = () => {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
+  const [clients, setClients] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
-        const response = await userService.getUsers();
-        setUsers(response.data.users);
+        const [usersResponse, clientsResponse] = await Promise.all([
+          userService.getUsers(),
+          clientService.getClients(),
+        ]);
+        setUsers(usersResponse.data.users);
+        setClients(clientsResponse.data.clients);
       } catch (error) {
-        console.error('Failed to fetch users:', error);
+        console.error('Failed to fetch data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUsers();
+    fetchData();
   }, []);
+
+  const handleClientChange = async (userId, clientId) => {
+    try {
+      await userService.updateUserClient(userId, clientId);
+      
+      // Update local state
+      setUsers(users.map(user => {
+        if (user.id === userId) {
+          const client = clients.find(c => c.id === parseInt(clientId));
+          return {
+            ...user,
+            clientId: clientId ? parseInt(clientId) : null,
+            clientName: client ? client.name : null,
+          };
+        }
+        return user;
+      }));
+    } catch (error) {
+      console.error('Failed to update user client:', error);
+    }
+  };
 
   const filteredUsers = users.filter(
     (user) =>
@@ -86,6 +114,9 @@ const Users = () => {
                   Role
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Client
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Status
                 </th>
               </tr>
@@ -115,6 +146,28 @@ const Users = () => {
                     >
                       {user.role.replace('_', ' ')}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {user.role === 'root_admin' ? (
+                      <span className="text-sm text-gray-500 dark:text-gray-400 italic">N/A</span>
+                    ) : currentUser?.role === 'root_admin' ? (
+                      <select
+                        value={user.clientId || ''}
+                        onChange={(e) => handleClientChange(user.id, e.target.value)}
+                        className="text-sm px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      >
+                        <option value="">Unassigned</option>
+                        {clients.map((client) => (
+                          <option key={client.id} value={client.id}>
+                            {client.name}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="text-sm text-gray-900 dark:text-gray-100">
+                        {user.clientName || 'Unassigned'}
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
