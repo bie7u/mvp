@@ -31,6 +31,19 @@ const mockUsers = {
   },
 };
 
+// Mock clients database
+let mockClients = [
+  {
+    id: 1,
+    name: 'Acme Corporation',
+    adminName: 'Bob Admin',
+    adminEmail: 'admin@client.com',
+    status: 'active',
+  },
+];
+
+let nextClientId = 2;
+
 export const handlers = [
   // Login endpoint
   http.post('/api/login', async ({ request }) => {
@@ -84,6 +97,44 @@ export const handlers = [
         { id: 3, name: 'Charlie User', email: 'user@client.com', role: 'client_user', status: 'active' },
         { id: 4, name: 'Dave Smith', email: 'dave@client.com', role: 'client_user', status: 'inactive' },
       ],
+    });
+  }),
+
+  // Get clients endpoint
+  http.get('/api/clients', () => {
+    return HttpResponse.json({
+      clients: mockClients,
+    });
+  }),
+
+  // Create client endpoint
+  http.post('/api/clients', async ({ request }) => {
+    const { clientName, adminName, adminEmail, adminPassword } = await request.json();
+
+    const newClient = {
+      id: nextClientId++,
+      name: clientName,
+      adminName,
+      adminEmail,
+      status: 'active',
+    };
+
+    // Add client admin to mock users
+    mockUsers[adminEmail] = {
+      password: adminPassword,
+      user: {
+        id: nextClientId + 100,
+        name: adminName,
+        email: adminEmail,
+        role: 'client_admin',
+      },
+    };
+
+    mockClients.push(newClient);
+
+    return HttpResponse.json({
+      client: newClient,
+      message: 'Client created successfully',
     });
   }),
 ];
