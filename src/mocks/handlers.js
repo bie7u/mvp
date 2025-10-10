@@ -92,10 +92,10 @@ export const handlers = [
   http.get('/api/users', () => {
     return HttpResponse.json({
       users: [
-        { id: 1, name: 'Alice Root', email: 'root@flowdesk.com', role: 'root_admin', status: 'active' },
-        { id: 2, name: 'Bob Admin', email: 'admin@client.com', role: 'client_admin', status: 'active' },
-        { id: 3, name: 'Charlie User', email: 'user@client.com', role: 'client_user', status: 'active' },
-        { id: 4, name: 'Dave Smith', email: 'dave@client.com', role: 'client_user', status: 'inactive' },
+        { id: 1, name: 'Alice Root', email: 'root@flowdesk.com', role: 'root_admin', status: 'active', clientId: null, clientName: null },
+        { id: 2, name: 'Bob Admin', email: 'admin@client.com', role: 'client_admin', status: 'active', clientId: 1, clientName: 'Acme Corporation' },
+        { id: 3, name: 'Charlie User', email: 'user@client.com', role: 'client_user', status: 'active', clientId: 1, clientName: 'Acme Corporation' },
+        { id: 4, name: 'Dave Smith', email: 'dave@client.com', role: 'client_user', status: 'inactive', clientId: 1, clientName: 'Acme Corporation' },
       ],
     });
   }),
@@ -135,6 +135,18 @@ export const handlers = [
     return HttpResponse.json({
       client: newClient,
       message: 'Client created successfully',
+    });
+  }),
+
+  // Update user's client assignment
+  http.patch('/api/users/:userId/client', async ({ request, params }) => {
+    const { clientId } = await request.json();
+    const { userId } = params;
+
+    return HttpResponse.json({
+      message: 'User client updated successfully',
+      userId,
+      clientId,
     });
   }),
 ];
