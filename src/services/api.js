@@ -29,4 +29,9 @@ export const userService = {
   getUsers: () => api.get('/users'),
 };
 
+export const clientService = {
+  getClients: () => api.get('/clients'),
+  createClient: (data) => api.post('/clients', data),
+};
+
 export default api;
