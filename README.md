@@ -1,16 +1,56 @@
-# React + Vite
+# FlowDesk - Modern SaaS Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A fully responsive, mobile-first SaaS single-page application built with React, TailwindCSS, and role-based access control (RBAC).
 
-Currently, two official plugins are available:
+## 🎯 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Authentication & RBAC**: Role-based access control with three user roles
+  - `root_admin`: Full access to all pages and data
+  - `client_admin`: Access to client-specific data and user management
+  - `client_user`: Limited access (dashboard + analytics)
+- **Modern UI**: Clean, professional design with TailwindCSS
+- **Dark Mode**: Toggle between light and dark themes with persistence
+- **Responsive Design**: Mobile-first approach with dedicated bottom navigation
+- **Mock API**: Built-in Mock Service Worker for development and testing
+- **Analytics Dashboard**: Interactive charts with Recharts
+- **User Management**: Complete user administration interface
 
-## React Compiler
+## 🧠 Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Framework**: React 19+ (functional components + hooks)
+- **Styling**: TailwindCSS v4
+- **Routing**: React Router DOM v6
+- **State Management**: Context API (Auth) + Zustand (Dark Mode)
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **API Client**: Axios
+- **Mock Backend**: Mock Service Worker (MSW)
+- **Charts**: Recharts
+- **Build Tool**: Vite
 
-## Expanding the ESLint configuration
+## 📦 Installation
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```
+
+## 🔐 Demo Credentials
+
+- **Root Admin**: `root@flowdesk.com` / `password`
+- **Client Admin**: `admin@client.com` / `password`
+- **Client User**: `user@client.com` / `password`
+
+## 📸 Screenshots
+
+### Login Page
+![Login](https://github.com/user-attachments/assets/c644e0da-de7d-42e7-ad59-7c4babc91497)
+
+### Dashboard
+![Dashboard](https://github.com/user-attachments/assets/60d1c1a2-f007-488e-b3a7-d1d652507207)
+
+### Analytics
+![Analytics](https://github.com/user-attachments/assets/5579284a-e828-4a15-a5c8-d6e1c6e86532)
+
+### Users Management
+![Users](https://github.com/user-attachments/assets/dfa7b7de-9e83-4431-89aa-c94e318ad055)
