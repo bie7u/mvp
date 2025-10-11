@@ -7,7 +7,8 @@ import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
 import Users from './pages/Users';
 import Settings from './pages/Settings';
-import AdminPanel from './pages/AdminPanel';
+import Clients from './pages/Clients';
+import ClientDetail from './pages/ClientDetail';
 import AccessDenied from './pages/AccessDenied';
 
 function App() {
@@ -67,10 +68,19 @@ function App() {
             />
             
             <Route
-              path="admin"
+              path="clients"
               element={
                 <ProtectedRoute allowedRoles={['root_admin']}>
-                  <AdminPanel />
+                  <Clients />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="clients/:clientId"
+              element={
+                <ProtectedRoute allowedRoles={['root_admin']}>
+                  <ClientDetail />
                 </ProtectedRoute>
               }
             />

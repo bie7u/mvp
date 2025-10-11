@@ -4,7 +4,7 @@ import {
   Users, 
   BarChart3, 
   Settings, 
-  Database 
+  Building2 
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -31,16 +31,16 @@ const BottomNav = () => {
       roles: ['root_admin', 'client_admin'],
     },
     {
+      name: 'Clients',
+      href: '/clients',
+      icon: Building2,
+      roles: ['root_admin'],
+    },
+    {
       name: 'Settings',
       href: '/settings',
       icon: Settings,
       roles: ['root_admin', 'client_admin'],
-    },
-    {
-      name: 'Admin',
-      href: '/admin',
-      icon: Database,
-      roles: ['root_admin'],
     },
   ];
 
