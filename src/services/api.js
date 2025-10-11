@@ -28,11 +28,14 @@ export const analyticsService = {
 export const userService = {
   getUsers: () => api.get('/users'),
   updateUserClient: (userId, clientId) => api.patch(`/users/${userId}/client`, { clientId }),
+  deleteUser: (userId) => api.delete(`/users/${userId}`),
 };
 
 export const clientService = {
   getClients: () => api.get('/clients'),
   createClient: (data) => api.post('/clients', data),
+  getClientById: (clientId) => api.get(`/clients/${clientId}`),
+  getClientUsers: (clientId) => api.get(`/clients/${clientId}/users`),
 };
 
 export default api;

@@ -107,6 +107,39 @@ export const handlers = [
     });
   }),
 
+  // Get client by ID endpoint
+  http.get('/api/clients/:clientId', ({ params }) => {
+    const { clientId } = params;
+    const client = mockClients.find(c => c.id === parseInt(clientId));
+    
+    if (!client) {
+      return HttpResponse.json(
+        { message: 'Client not found' },
+        { status: 404 }
+      );
+    }
+
+    return HttpResponse.json({
+      client,
+    });
+  }),
+
+  // Get client users endpoint
+  http.get('/api/clients/:clientId/users', ({ params }) => {
+    const { clientId } = params;
+    
+    // Mock users for the client
+    const clientUsers = [
+      { id: 2, name: 'Bob Admin', email: 'admin@client.com', role: 'client_admin', status: 'active', clientId: parseInt(clientId), clientName: 'Acme Corporation' },
+      { id: 3, name: 'Charlie User', email: 'user@client.com', role: 'client_user', status: 'active', clientId: parseInt(clientId), clientName: 'Acme Corporation' },
+      { id: 4, name: 'Dave Smith', email: 'dave@client.com', role: 'client_user', status: 'inactive', clientId: parseInt(clientId), clientName: 'Acme Corporation' },
+    ];
+
+    return HttpResponse.json({
+      users: clientUsers.filter(u => u.clientId === parseInt(clientId)),
+    });
+  }),
+
   // Create client endpoint
   http.post('/api/clients', async ({ request }) => {
     const { clientName, adminName, adminEmail, adminPassword } = await request.json();
@@ -147,6 +180,16 @@ export const handlers = [
       message: 'User client updated successfully',
       userId,
       clientId,
+    });
+  }),
+
+  // Delete user endpoint
+  http.delete('/api/users/:userId', ({ params }) => {
+    const { userId } = params;
+
+    return HttpResponse.json({
+      message: 'User deleted successfully',
+      userId,
     });
   }),
 ];
