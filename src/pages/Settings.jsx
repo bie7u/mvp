@@ -110,10 +110,10 @@ const Settings = () => {
             </h2>
           </div>
           <div className="space-y-4">
-            <button className="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+            <button className="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors cursor-pointer">
               Change Password
             </button>
-            <button className="w-full sm:w-auto px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-medium rounded-lg transition-colors ml-0 sm:ml-2 mt-2 sm:mt-0">
+            <button className="w-full sm:w-auto px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-medium rounded-lg transition-colors ml-0 sm:ml-2 mt-2 sm:mt-0 cursor-pointer">
               Enable 2FA
             </button>
           </div>
@@ -126,7 +126,7 @@ const Settings = () => {
           transition={{ delay: 0.3 }}
           className="flex justify-end"
         >
-          <button className="flex items-center space-x-2 px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors">
+          <button className="flex items-center space-x-2 px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors cursor-pointer">
             <Save className="h-5 w-5" />
             <span>Save Changes</span>
           </button>

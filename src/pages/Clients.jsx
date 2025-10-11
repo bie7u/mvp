@@ -69,7 +69,7 @@ const Clients = () => {
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors cursor-pointer"
             >
               <UserPlus className="h-5 w-5" />
               <span>Add Client</span>
@@ -132,7 +132,7 @@ const Clients = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <button
                             onClick={() => navigate(`/clients/${client.id}`)}
-                            className="flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                            className="flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors cursor-pointer"
                           >
                             <Eye className="h-4 w-4" />
                             <span className="text-sm font-medium">View Details</span>

@@ -99,6 +99,7 @@ const leaguesData = [
 const Leagues = () => {
   const [selectedLeague, setSelectedLeague] = useState(leaguesData[0]);
   const [activeTab, setActiveTab] = useState('standings'); // 'standings' or 'rounds'
+  const [selectedRound, setSelectedRound] = useState(null);
 
   return (
     <div>
@@ -118,7 +119,7 @@ const Leagues = () => {
             <button
               key={league.id}
               onClick={() => setSelectedLeague(league)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
                 selectedLeague.id === league.id
                   ? 'bg-blue-600 text-white'
                   : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
@@ -153,7 +154,7 @@ const Leagues = () => {
         <div className="flex space-x-4 border-b border-gray-200 dark:border-gray-700 mb-4">
           <button
             onClick={() => setActiveTab('standings')}
-            className={`pb-2 px-1 font-medium transition-colors ${
+            className={`pb-2 px-1 font-medium transition-colors cursor-pointer ${
               activeTab === 'standings'
                 ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
@@ -163,7 +164,7 @@ const Leagues = () => {
           </button>
           <button
             onClick={() => setActiveTab('rounds')}
-            className={`pb-2 px-1 font-medium transition-colors ${
+            className={`pb-2 px-1 font-medium transition-colors cursor-pointer ${
               activeTab === 'rounds'
                 ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
@@ -255,7 +256,29 @@ const Leagues = () => {
         {/* Rounds/Fixtures */}
         {activeTab === 'rounds' && (
           <div className="space-y-4">
-            {selectedLeague.rounds.map((round) => (
+            {/* Round Selector Dropdown */}
+            <div className="mb-6">
+              <label htmlFor="round-select" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Select Round
+              </label>
+              <select
+                id="round-select"
+                value={selectedRound || ''}
+                onChange={(e) => setSelectedRound(e.target.value ? Number(e.target.value) : null)}
+                className="block w-full md:w-64 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+              >
+                <option value="">All Rounds</option>
+                {selectedLeague.rounds.map((round) => (
+                  <option key={round.round} value={round.round}>
+                    Round {round.round} - {round.date}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {selectedLeague.rounds
+              .filter((round) => selectedRound === null || round.round === selectedRound)
+              .map((round) => (
               <motion.div
                 key={round.round}
                 initial={{ opacity: 0, x: -20 }}
