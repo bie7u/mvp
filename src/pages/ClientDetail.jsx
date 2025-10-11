@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Users, UserPlus, Edit, Trash2 } from 'lucide-react';
 import { clientService, userService } from '../services/api';
+import AddUserModal from '../components/AddUserModal';
 
 const ClientDetail = () => {
   const { clientId } = useParams();
@@ -10,6 +11,7 @@ const ClientDetail = () => {
   const [client, setClient] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchClientData = async () => {
@@ -29,6 +31,26 @@ const ClientDetail = () => {
 
     fetchClientData();
   }, [clientId]);
+
+  const handleAddUser = async (formData) => {
+    try {
+      // In a real app, this would call an API endpoint to create the user
+      // For now, we'll just add it to the local state with mock data
+      const newUser = {
+        id: Date.now(),
+        name: formData.name,
+        email: formData.email,
+        role: formData.role,
+        status: 'active',
+        clientId: parseInt(clientId),
+        clientName: client.name,
+      };
+      setUsers([...users, newUser]);
+      setIsAddUserModalOpen(false);
+    } catch (error) {
+      console.error('Failed to add user:', error);
+    }
+  };
 
   const handleDeleteUser = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
@@ -59,6 +81,13 @@ const ClientDetail = () => {
 
   return (
     <div>
+      <AddUserModal
+        isOpen={isAddUserModalOpen}
+        onClose={() => setIsAddUserModalOpen(false)}
+        onSubmit={handleAddUser}
+        clientName={client?.name}
+      />
+
       {/* Header */}
       <div className="mb-8">
         <button
@@ -178,7 +207,10 @@ const ClientDetail = () => {
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
             Client Users
           </h2>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+          <button
+            onClick={() => setIsAddUserModalOpen(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+          >
             <UserPlus className="h-5 w-5" />
             <span>Add User</span>
           </button>
