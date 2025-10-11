@@ -5,7 +5,8 @@ import {
   BarChart3, 
   Settings, 
   Building2,
-  Trophy
+  Trophy,
+  Award
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -23,12 +24,18 @@ const BottomNav = () => {
       name: 'Analytics',
       href: '/analytics',
       icon: BarChart3,
-      roles: ['root_admin', 'client_admin', 'client_user'],
+      roles: ['root_admin'],
     },
     {
       name: 'Leagues',
       href: '/leagues',
       icon: Trophy,
+      roles: ['root_admin', 'client_admin', 'client_user'],
+    },
+    {
+      name: 'Ranking',
+      href: '/ranking',
+      icon: Award,
       roles: ['root_admin', 'client_admin', 'client_user'],
     },
     {
@@ -47,7 +54,7 @@ const BottomNav = () => {
       name: 'Settings',
       href: '/settings',
       icon: Settings,
-      roles: ['root_admin', 'client_admin'],
+      roles: ['root_admin', 'client_admin', 'client_user'],
     },
   ];
 

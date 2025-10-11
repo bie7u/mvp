@@ -10,6 +10,7 @@ import Settings from './pages/Settings';
 import Clients from './pages/Clients';
 import ClientDetail from './pages/ClientDetail';
 import Leagues from './pages/Leagues';
+import Ranking from './pages/Ranking';
 import AccessDenied from './pages/AccessDenied';
 
 function App() {
@@ -44,7 +45,7 @@ function App() {
             <Route
               path="analytics"
               element={
-                <ProtectedRoute allowedRoles={['root_admin', 'client_admin', 'client_user']}>
+                <ProtectedRoute allowedRoles={['root_admin']}>
                   <Analytics />
                 </ProtectedRoute>
               }
@@ -62,7 +63,7 @@ function App() {
             <Route
               path="settings"
               element={
-                <ProtectedRoute allowedRoles={['root_admin', 'client_admin']}>
+                <ProtectedRoute allowedRoles={['root_admin', 'client_admin', 'client_user']}>
                   <Settings />
                 </ProtectedRoute>
               }
@@ -91,6 +92,15 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['root_admin', 'client_admin', 'client_user']}>
                   <Leagues />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="ranking"
+              element={
+                <ProtectedRoute allowedRoles={['root_admin', 'client_admin', 'client_user']}>
+                  <Ranking />
                 </ProtectedRoute>
               }
             />

@@ -3,11 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Users, UserPlus, Edit, Trash2 } from 'lucide-react';
 import { clientService, userService } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import AddUserModal from '../components/AddUserModal';
 
 const ClientDetail = () => {
   const { clientId } = useParams();
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const [client, setClient] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -86,6 +88,7 @@ const ClientDetail = () => {
         onClose={() => setIsAddUserModalOpen(false)}
         onSubmit={handleAddUser}
         clientName={client?.name}
+        currentUserRole={currentUser?.role}
       />
 
       {/* Header */}
