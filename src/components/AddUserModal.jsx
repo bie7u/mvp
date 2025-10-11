@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { X, User, Mail, Lock, Shield } from 'lucide-react';
+import { X, User, Mail, Lock, Shield, Building2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const AddUserModal = ({ isOpen, onClose, onSubmit, clientName }) => {
+const AddUserModal = ({ isOpen, onClose, onSubmit, clientName, clients, currentUserRole }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     role: 'client_user',
+    clientId: '',
   });
 
   const handleChange = (e) => {
@@ -27,6 +28,7 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, clientName }) => {
       email: '',
       password: '',
       role: 'client_user',
+      clientId: '',
     });
   };
 
@@ -59,7 +61,7 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, clientName }) => {
                   Add New User
                 </h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  Add a user to {clientName}
+                  {clientName ? `Add a user to ${clientName}` : 'Add a new user to the system'}
                 </p>
               </div>
               <button
@@ -148,6 +150,32 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, clientName }) => {
                   </select>
                 </div>
               </div>
+
+              {/* Client Selection - Only for root_admin */}
+              {currentUserRole === 'root_admin' && clients && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Client
+                  </label>
+                  <div className="relative">
+                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <select
+                      name="clientId"
+                      value={formData.clientId}
+                      onChange={handleChange}
+                      required
+                      className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    >
+                      <option value="">Select a client</option>
+                      {clients.map((client) => (
+                        <option key={client.id} value={client.id}>
+                          {client.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
 
               {/* Actions */}
               <div className="flex space-x-3 pt-4">

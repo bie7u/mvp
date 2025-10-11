@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Search, UserPlus } from 'lucide-react';
 import { userService, clientService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import AddUserModal from '../components/AddUserModal';
 
 const Users = () => {
   const { user: currentUser } = useAuth();
@@ -10,6 +11,7 @@ const Users = () => {
   const [clients, setClients] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,6 +53,26 @@ const Users = () => {
     }
   };
 
+  const handleAddUser = async (formData) => {
+    try {
+      // In a real app, this would call an API endpoint to create the user
+      const client = clients.find(c => c.id === parseInt(formData.clientId));
+      const newUser = {
+        id: Date.now(),
+        name: formData.name,
+        email: formData.email,
+        role: formData.role,
+        status: 'active',
+        clientId: formData.clientId ? parseInt(formData.clientId) : null,
+        clientName: client ? client.name : null,
+      };
+      setUsers([...users, newUser]);
+      setIsAddUserModalOpen(false);
+    } catch (error) {
+      console.error('Failed to add user:', error);
+    }
+  };
+
   const filteredUsers = users.filter(
     (user) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -67,6 +89,14 @@ const Users = () => {
 
   return (
     <div>
+      <AddUserModal
+        isOpen={isAddUserModalOpen}
+        onClose={() => setIsAddUserModalOpen(false)}
+        onSubmit={handleAddUser}
+        clients={clients}
+        currentUserRole={currentUser?.role}
+      />
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
           Users
@@ -88,7 +118,10 @@ const Users = () => {
             className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           />
         </div>
-        <button className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors cursor-pointer">
+        <button 
+          onClick={() => setIsAddUserModalOpen(true)}
+          className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors cursor-pointer"
+        >
           <UserPlus className="h-5 w-5" />
           <span>Add User</span>
         </button>
