@@ -9,6 +9,7 @@ import Users from './pages/Users';
 import Settings from './pages/Settings';
 import Clients from './pages/Clients';
 import ClientDetail from './pages/ClientDetail';
+import Leagues from './pages/Leagues';
 import AccessDenied from './pages/AccessDenied';
 
 function App() {
@@ -81,6 +82,15 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['root_admin']}>
                   <ClientDetail />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="leagues"
+              element={
+                <ProtectedRoute allowedRoles={['root_admin', 'client_admin', 'client_user']}>
+                  <Leagues />
                 </ProtectedRoute>
               }
             />

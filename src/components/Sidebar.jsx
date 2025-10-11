@@ -4,7 +4,8 @@ import {
   Users, 
   BarChart3, 
   Settings, 
-  Building2 
+  Building2,
+  Trophy
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -22,6 +23,12 @@ const Sidebar = () => {
       name: 'Analytics',
       href: '/analytics',
       icon: BarChart3,
+      roles: ['root_admin', 'client_admin', 'client_user'],
+    },
+    {
+      name: 'Leagues',
+      href: '/leagues',
+      icon: Trophy,
       roles: ['root_admin', 'client_admin', 'client_user'],
     },
     {
