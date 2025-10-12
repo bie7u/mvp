@@ -264,36 +264,146 @@ export const handlers = [
     });
   }),
 
-  // Analytics data endpoint
-  http.get('/api/analytics', () => {
+  // Analytics data endpoint with server-side filtering
+  http.get('/api/analytics', ({ request }) => {
+    const url = new URL(request.url);
+    const clientIdParam = url.searchParams.get('clientId');
+    const startDateParam = url.searchParams.get('startDate');
+    const endDateParam = url.searchParams.get('endDate');
+
+    // Mock analytics data
+    let analyticsData = [
+      { name: 'Jan', users: 400, revenue: 2400, date: '2025-01-01' },
+      { name: 'Feb', users: 300, revenue: 1398, date: '2025-02-01' },
+      { name: 'Mar', users: 600, revenue: 9800, date: '2025-03-01' },
+      { name: 'Apr', users: 800, revenue: 3908, date: '2025-04-01' },
+      { name: 'May', users: 1000, revenue: 4800, date: '2025-05-01' },
+      { name: 'Jun', users: 1200, revenue: 3800, date: '2025-06-01' },
+    ];
+
+    // Filter by date range if provided
+    if (startDateParam) {
+      analyticsData = analyticsData.filter(d => d.date >= startDateParam);
+    }
+
+    if (endDateParam) {
+      analyticsData = analyticsData.filter(d => d.date <= endDateParam);
+    }
+
+    // In a real implementation, clientId would filter the data by client
+    // For now, we'll just acknowledge the parameter
+    if (clientIdParam) {
+      // Would filter by client in real implementation
+    }
+
+    // Remove the date field from response (internal use only)
+    const responseData = analyticsData.map(({ date: _date, ...rest }) => rest);
+
     return HttpResponse.json({
-      data: [
-        { name: 'Jan', users: 400, revenue: 2400 },
-        { name: 'Feb', users: 300, revenue: 1398 },
-        { name: 'Mar', users: 600, revenue: 9800 },
-        { name: 'Apr', users: 800, revenue: 3908 },
-        { name: 'May', users: 1000, revenue: 4800 },
-        { name: 'Jun', users: 1200, revenue: 3800 },
-      ],
+      data: responseData,
     });
   }),
 
-  // Users list endpoint
-  http.get('/api/users', () => {
+  // Users list endpoint with server-side filtering
+  http.get('/api/users', ({ request }) => {
+    const url = new URL(request.url);
+    const clientIdParam = url.searchParams.get('clientId');
+    const roleParam = url.searchParams.get('role');
+    const statusParam = url.searchParams.get('status');
+    const searchParam = url.searchParams.get('search');
+    const pageParam = parseInt(url.searchParams.get('page')) || 1;
+    const limitParam = Math.min(parseInt(url.searchParams.get('limit')) || 10, 100);
+
+    // All users in the system
+    let allUsers = [
+      { id: 1, name: 'Alice Root', email: 'root@flowdesk.com', role: 'root_admin', status: 'active', clientId: null, clientName: null },
+      { id: 2, name: 'Bob Admin', email: 'admin@client.com', role: 'client_admin', status: 'active', clientId: 1, clientName: 'Acme Corporation' },
+      { id: 3, name: 'Charlie User', email: 'user@client.com', role: 'client_user', status: 'active', clientId: 1, clientName: 'Acme Corporation' },
+      { id: 4, name: 'Dave Smith', email: 'dave@client.com', role: 'client_user', status: 'inactive', clientId: 1, clientName: 'Acme Corporation' },
+      { id: 5, name: 'Jane Smith', email: 'jane@techstart.com', role: 'client_admin', status: 'active', clientId: 2, clientName: 'TechStart Inc' },
+      { id: 6, name: 'Mark Johnson', email: 'mark@techstart.com', role: 'client_user', status: 'active', clientId: 2, clientName: 'TechStart Inc' },
+    ];
+
+    // Apply filters
+    let filteredUsers = allUsers;
+
+    // Filter by client ID
+    if (clientIdParam) {
+      filteredUsers = filteredUsers.filter(u => u.clientId === parseInt(clientIdParam));
+    }
+
+    // Filter by role
+    if (roleParam) {
+      filteredUsers = filteredUsers.filter(u => u.role === roleParam);
+    }
+
+    // Filter by status
+    if (statusParam) {
+      filteredUsers = filteredUsers.filter(u => u.status === statusParam);
+    }
+
+    // Search by name or email
+    if (searchParam) {
+      const search = searchParam.toLowerCase();
+      filteredUsers = filteredUsers.filter(u =>
+        u.name.toLowerCase().includes(search) ||
+        u.email.toLowerCase().includes(search)
+      );
+    }
+
+    // Apply pagination
+    const startIndex = (pageParam - 1) * limitParam;
+    const endIndex = startIndex + limitParam;
+    const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
     return HttpResponse.json({
-      users: [
-        { id: 1, name: 'Alice Root', email: 'root@flowdesk.com', role: 'root_admin', status: 'active', clientId: null, clientName: null },
-        { id: 2, name: 'Bob Admin', email: 'admin@client.com', role: 'client_admin', status: 'active', clientId: 1, clientName: 'Acme Corporation' },
-        { id: 3, name: 'Charlie User', email: 'user@client.com', role: 'client_user', status: 'active', clientId: 1, clientName: 'Acme Corporation' },
-        { id: 4, name: 'Dave Smith', email: 'dave@client.com', role: 'client_user', status: 'inactive', clientId: 1, clientName: 'Acme Corporation' },
-      ],
+      users: paginatedUsers,
+      pagination: {
+        page: pageParam,
+        limit: limitParam,
+        total: filteredUsers.length,
+        totalPages: Math.ceil(filteredUsers.length / limitParam),
+      },
     });
   }),
 
-  // Get clients endpoint
-  http.get('/api/clients', () => {
+  // Get clients endpoint with server-side filtering
+  http.get('/api/clients', ({ request }) => {
+    const url = new URL(request.url);
+    const statusParam = url.searchParams.get('status');
+    const searchParam = url.searchParams.get('search');
+    const pageParam = parseInt(url.searchParams.get('page')) || 1;
+    const limitParam = Math.min(parseInt(url.searchParams.get('limit')) || 10, 100);
+
+    let filteredClients = mockClients;
+
+    // Filter by status
+    if (statusParam) {
+      filteredClients = filteredClients.filter(c => c.status === statusParam);
+    }
+
+    // Search by client name or admin email
+    if (searchParam) {
+      const search = searchParam.toLowerCase();
+      filteredClients = filteredClients.filter(c =>
+        c.name.toLowerCase().includes(search) ||
+        c.adminEmail.toLowerCase().includes(search)
+      );
+    }
+
+    // Apply pagination
+    const startIndex = (pageParam - 1) * limitParam;
+    const endIndex = startIndex + limitParam;
+    const paginatedClients = filteredClients.slice(startIndex, endIndex);
+
     return HttpResponse.json({
-      clients: mockClients,
+      clients: paginatedClients,
+      pagination: {
+        page: pageParam,
+        limit: limitParam,
+        total: filteredClients.length,
+        totalPages: Math.ceil(filteredClients.length / limitParam),
+      },
     });
   }),
 
@@ -314,19 +424,50 @@ export const handlers = [
     });
   }),
 
-  // Get client users endpoint
-  http.get('/api/clients/:clientId/users', ({ params }) => {
+  // Get client users endpoint with server-side filtering
+  http.get('/api/clients/:clientId/users', ({ params, request }) => {
     const { clientId } = params;
+    const url = new URL(request.url);
+    const roleParam = url.searchParams.get('role');
+    const statusParam = url.searchParams.get('status');
+    const pageParam = parseInt(url.searchParams.get('page')) || 1;
+    const limitParam = Math.min(parseInt(url.searchParams.get('limit')) || 10, 100);
     
     // Mock users for the client
-    const clientUsers = [
-      { id: 2, name: 'Bob Admin', email: 'admin@client.com', role: 'client_admin', status: 'active', clientId: parseInt(clientId), clientName: 'Acme Corporation' },
-      { id: 3, name: 'Charlie User', email: 'user@client.com', role: 'client_user', status: 'active', clientId: parseInt(clientId), clientName: 'Acme Corporation' },
-      { id: 4, name: 'Dave Smith', email: 'dave@client.com', role: 'client_user', status: 'inactive', clientId: parseInt(clientId), clientName: 'Acme Corporation' },
+    const allClientUsers = [
+      { id: 2, name: 'Bob Admin', email: 'admin@client.com', role: 'client_admin', status: 'active', clientId: 1, clientName: 'Acme Corporation' },
+      { id: 3, name: 'Charlie User', email: 'user@client.com', role: 'client_user', status: 'active', clientId: 1, clientName: 'Acme Corporation' },
+      { id: 4, name: 'Dave Smith', email: 'dave@client.com', role: 'client_user', status: 'inactive', clientId: 1, clientName: 'Acme Corporation' },
+      { id: 5, name: 'Jane Smith', email: 'jane@techstart.com', role: 'client_admin', status: 'active', clientId: 2, clientName: 'TechStart Inc' },
+      { id: 6, name: 'Mark Johnson', email: 'mark@techstart.com', role: 'client_user', status: 'active', clientId: 2, clientName: 'TechStart Inc' },
     ];
 
+    // Filter by client ID
+    let filteredUsers = allClientUsers.filter(u => u.clientId === parseInt(clientId));
+
+    // Filter by role
+    if (roleParam) {
+      filteredUsers = filteredUsers.filter(u => u.role === roleParam);
+    }
+
+    // Filter by status
+    if (statusParam) {
+      filteredUsers = filteredUsers.filter(u => u.status === statusParam);
+    }
+
+    // Apply pagination
+    const startIndex = (pageParam - 1) * limitParam;
+    const endIndex = startIndex + limitParam;
+    const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
     return HttpResponse.json({
-      users: clientUsers.filter(u => u.clientId === parseInt(clientId)),
+      users: paginatedUsers,
+      pagination: {
+        page: pageParam,
+        limit: limitParam,
+        total: filteredUsers.length,
+        totalPages: Math.ceil(filteredUsers.length / limitParam),
+      },
     });
   }),
 
@@ -383,21 +524,96 @@ export const handlers = [
     });
   }),
 
-  // Get upcoming matches for predictions
-  http.get('/api/predictions/matches', () => {
+  // Get upcoming matches for predictions with server-side filtering
+  http.get('/api/predictions/matches', ({ request }) => {
+    const url = new URL(request.url);
+    const leagueParam = url.searchParams.get('league');
+    const dateParam = url.searchParams.get('date');
+    const lockedParam = url.searchParams.get('locked');
+    const pageParam = parseInt(url.searchParams.get('page')) || 1;
+    const limitParam = Math.min(parseInt(url.searchParams.get('limit')) || 10, 100);
+
+    let filteredMatches = mockMatches;
+
+    // Filter by league
+    if (leagueParam) {
+      filteredMatches = filteredMatches.filter(m => m.league === leagueParam);
+    }
+
+    // Filter by date
+    if (dateParam) {
+      filteredMatches = filteredMatches.filter(m => m.date === dateParam);
+    }
+
+    // Filter by locked status
+    if (lockedParam !== null && lockedParam !== undefined) {
+      const isLocked = lockedParam === 'true';
+      filteredMatches = filteredMatches.filter(m => m.locked === isLocked);
+    }
+
+    // Apply pagination
+    const startIndex = (pageParam - 1) * limitParam;
+    const endIndex = startIndex + limitParam;
+    const paginatedMatches = filteredMatches.slice(startIndex, endIndex);
+
     return HttpResponse.json({
-      matches: mockMatches,
+      matches: paginatedMatches,
+      pagination: {
+        page: pageParam,
+        limit: limitParam,
+        total: filteredMatches.length,
+        totalPages: Math.ceil(filteredMatches.length / limitParam),
+      },
     });
   }),
 
-  // Get user's predictions
-  // Get user's predictions
-  http.get('/api/predictions/user', () => {
+  // Get user's predictions with server-side filtering
+  http.get('/api/predictions/user', ({ request }) => {
+    const url = new URL(request.url);
+    const matchIdParam = url.searchParams.get('matchId');
+    const statusParam = url.searchParams.get('status');
+    const pageParam = parseInt(url.searchParams.get('page')) || 1;
+    const limitParam = Math.min(parseInt(url.searchParams.get('limit')) || 10, 100);
+
     // In a real app, we'd get the user from the auth token
-    // For now, we'll return all predictions
-    // and filter on the frontend if needed
+    // For now, we'll return all predictions and filter based on query params
+    let filteredPredictions = mockPredictions;
+
+    // Filter by match ID
+    if (matchIdParam) {
+      filteredPredictions = filteredPredictions.filter(p => p.matchId === parseInt(matchIdParam));
+    }
+
+    // Filter by status (based on match status)
+    if (statusParam) {
+      filteredPredictions = filteredPredictions.filter(p => {
+        const match = mockMatches.find(m => m.id === p.matchId);
+        if (!match) return false;
+
+        if (statusParam === 'upcoming') {
+          return !match.locked && match.actualHomeScore === undefined;
+        } else if (statusParam === 'locked') {
+          return match.locked && match.actualHomeScore === undefined;
+        } else if (statusParam === 'completed') {
+          return match.actualHomeScore !== undefined;
+        }
+        return true;
+      });
+    }
+
+    // Apply pagination
+    const startIndex = (pageParam - 1) * limitParam;
+    const endIndex = startIndex + limitParam;
+    const paginatedPredictions = filteredPredictions.slice(startIndex, endIndex);
+
     return HttpResponse.json({
-      predictions: mockPredictions,
+      predictions: paginatedPredictions,
+      pagination: {
+        page: pageParam,
+        limit: limitParam,
+        total: filteredPredictions.length,
+        totalPages: Math.ceil(filteredPredictions.length / limitParam),
+      },
     });
   }),
 
@@ -452,18 +668,31 @@ export const handlers = [
     });
   }),
 
-  // Get rankings
+  // Get rankings with server-side filtering and pagination
   http.get('/api/rankings', ({ request }) => {
     const url = new URL(request.url);
     const clientIdParam = url.searchParams.get('clientId');
+    const pageParam = parseInt(url.searchParams.get('page')) || 1;
+    const limitParam = Math.min(parseInt(url.searchParams.get('limit')) || 10, 100);
     
     // If clientId is provided, use it; otherwise default to client 1
     const clientId = clientIdParam ? parseInt(clientIdParam) : 1;
     
-    const rankings = calculateClientRankings(clientId);
+    const allRankings = calculateClientRankings(clientId);
+
+    // Apply pagination
+    const startIndex = (pageParam - 1) * limitParam;
+    const endIndex = startIndex + limitParam;
+    const paginatedRankings = allRankings.slice(startIndex, endIndex);
 
     return HttpResponse.json({
-      rankings,
+      rankings: paginatedRankings,
+      pagination: {
+        page: pageParam,
+        limit: limitParam,
+        total: allRankings.length,
+        totalPages: Math.ceil(allRankings.length / limitParam),
+      },
     });
   }),
 ];
