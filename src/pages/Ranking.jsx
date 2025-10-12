@@ -1,37 +1,60 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, TrendingUp, Award } from 'lucide-react';
-
-// Mock ranking data
-const rankingData = [
-  { position: 1, player: 'John Smith', team: 'Manchester City', points: 285, goals: 28, assists: 15, matches: 35 },
-  { position: 2, player: 'Mike Johnson', team: 'Arsenal', points: 278, goals: 25, assists: 18, matches: 35 },
-  { position: 3, player: 'David Williams', team: 'Liverpool', points: 265, goals: 24, assists: 14, matches: 34 },
-  { position: 4, player: 'James Brown', team: 'Aston Villa', points: 252, goals: 22, assists: 16, matches: 35 },
-  { position: 5, player: 'Robert Davis', team: 'Tottenham', points: 248, goals: 21, assists: 17, matches: 35 },
-  { position: 6, player: 'Thomas Wilson', team: 'Chelsea', points: 245, goals: 23, assists: 12, matches: 34 },
-  { position: 7, player: 'Chris Taylor', team: 'Newcastle', points: 238, goals: 20, assists: 15, matches: 35 },
-  { position: 8, player: 'Daniel Anderson', team: 'Brighton', points: 235, goals: 19, assists: 16, matches: 34 },
-  { position: 9, player: 'Matthew Martinez', team: 'West Ham', points: 228, goals: 18, assists: 14, matches: 35 },
-  { position: 10, player: 'Andrew Garcia', team: 'Everton', points: 222, goals: 17, assists: 15, matches: 34 },
-];
+import { useAuth } from '../contexts/AuthContext';
+import { rankingService } from '../services/api';
 
 const Ranking = () => {
+  const { user } = useAuth();
+  const [rankingData, setRankingData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRanking = async () => {
+      try {
+        const response = await rankingService.getRanking();
+        setRankingData(response.data.rankings);
+      } catch (error) {
+        console.error('Failed to fetch ranking:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRanking();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
+        <div className="text-lg text-gray-600 dark:text-gray-300">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-          Player Rankings
+          Prediction Rankings
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Top players ranked by performance metrics
+          {user.role === 'root_admin' 
+            ? 'Overall prediction rankings across all users'
+            : 'Your organization\'s prediction rankings'}
         </p>
+        <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <p className="text-sm text-blue-800 dark:text-blue-300">
+            <strong>Scoring:</strong> 3 points for correct result (exact score), 1 point for correct winner
+          </p>
+        </div>
       </div>
 
-      {/* Top 3 Players Highlight */}
+      {/* Top 3 Users Highlight */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {rankingData.slice(0, 3).map((player, index) => (
+        {rankingData.slice(0, 3).map((userRank, index) => (
           <motion.div
-            key={player.position}
+            key={userRank.position}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
@@ -54,11 +77,11 @@ const Ranking = () => {
                       : 'bg-orange-700 text-white'
                   }`}
                 >
-                  {player.position}
+                  {userRank.position}
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">{player.player}</h3>
-                  <p className="text-sm text-white/80">{player.team}</p>
+                  <h3 className="text-lg font-bold text-white">{userRank.userName}</h3>
+                  <p className="text-sm text-white/80">{userRank.email}</p>
                 </div>
               </div>
               {index === 0 && <Trophy className="h-8 w-8 text-white" />}
@@ -68,11 +91,11 @@ const Ranking = () => {
             <div className="grid grid-cols-2 gap-4 text-white">
               <div>
                 <p className="text-xs text-white/80">Points</p>
-                <p className="text-xl font-bold">{player.points}</p>
+                <p className="text-xl font-bold">{userRank.points}</p>
               </div>
               <div>
-                <p className="text-xs text-white/80">Goals</p>
-                <p className="text-xl font-bold">{player.goals}</p>
+                <p className="text-xs text-white/80">Predictions</p>
+                <p className="text-xl font-bold">{userRank.totalPredictions}</p>
               </div>
             </div>
           </motion.div>
@@ -99,32 +122,32 @@ const Ranking = () => {
                   Rank
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Player
+                  User
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Team
+                  Email
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Points
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Goals
+                  Correct Results
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Assists
+                  Correct Winners
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Matches
+                  Total Predictions
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {rankingData.map((player, index) => (
+              {rankingData.map((userRank, index) => (
                 <tr
-                  key={player.position}
+                  key={userRank.position}
                   className={`hover:bg-gray-50 dark:hover:bg-gray-700 ${
                     index < 3 ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                  }`}
+                  } ${userRank.userId === user.id ? 'bg-green-50 dark:bg-green-900/20 font-bold' : ''}`}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -139,38 +162,41 @@ const Ranking = () => {
                             : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                         }`}
                       >
-                        {player.position}
+                        {userRank.position}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {player.player}
+                      {userRank.userName}
+                      {userRank.userId === user.id && (
+                        <span className="ml-2 text-xs text-green-600 dark:text-green-400">(You)</span>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {player.team}
+                      {userRank.email}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                      {player.points}
+                      {userRank.points}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="text-sm text-gray-900 dark:text-gray-100">
-                      {player.goals}
+                      {userRank.correctResults}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="text-sm text-gray-900 dark:text-gray-100">
-                      {player.assists}
+                      {userRank.correctWinners}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {player.matches}
+                      {userRank.totalPredictions}
                     </div>
                   </td>
                 </tr>

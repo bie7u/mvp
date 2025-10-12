@@ -10,6 +10,7 @@ import Settings from './pages/Settings';
 import Clients from './pages/Clients';
 import ClientDetail from './pages/ClientDetail';
 import Leagues from './pages/Leagues';
+import Predictions from './pages/Predictions';
 import Ranking from './pages/Ranking';
 import AccessDenied from './pages/AccessDenied';
 
@@ -92,6 +93,15 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['root_admin', 'client_admin', 'client_user']}>
                   <Leagues />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="predictions"
+              element={
+                <ProtectedRoute allowedRoles={['client_admin', 'client_user']}>
+                  <Predictions />
                 </ProtectedRoute>
               }
             />
