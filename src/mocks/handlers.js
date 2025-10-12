@@ -40,9 +40,16 @@ let mockClients = [
     adminEmail: 'admin@client.com',
     status: 'active',
   },
+  {
+    id: 2,
+    name: 'TechStart Inc',
+    adminName: 'Jane Smith',
+    adminEmail: 'jane@techstart.com',
+    status: 'active',
+  },
 ];
 
-let nextClientId = 2;
+let nextClientId = 3;
 
 // Mock predictions database
 let mockPredictions = [
@@ -51,9 +58,13 @@ let mockPredictions = [
   { id: 2, userId: 2, userName: 'Bob Admin', email: 'admin@client.com', clientId: 1, matchId: 2, homeScore: 1, awayScore: 1 },
   { id: 3, userId: 3, userName: 'Charlie User', email: 'user@client.com', clientId: 1, matchId: 1, homeScore: 3, awayScore: 1 },
   { id: 4, userId: 3, userName: 'Charlie User', email: 'user@client.com', clientId: 1, matchId: 2, homeScore: 0, awayScore: 2 },
+  // Client 2 users predictions
+  { id: 5, userId: 5, userName: 'Jane Smith', email: 'jane@techstart.com', clientId: 2, matchId: 1, homeScore: 1, awayScore: 2 },
+  { id: 6, userId: 5, userName: 'Jane Smith', email: 'jane@techstart.com', clientId: 2, matchId: 2, homeScore: 2, awayScore: 1 },
+  { id: 7, userId: 6, userName: 'Mark Johnson', email: 'mark@techstart.com', clientId: 2, matchId: 1, homeScore: 2, awayScore: 0 },
 ];
 
-let nextPredictionId = 5;
+let nextPredictionId = 8;
 
 // Mock matches database
 const mockMatches = [
@@ -163,13 +174,19 @@ const calculatePoints = (prediction, match) => {
 // Helper function to calculate user rankings for a client
 const calculateClientRankings = (clientId) => {
   // Get all users in this client
-  const clientUsers = clientId === 1 
-    ? [
-        { id: 2, name: 'Bob Admin', email: 'admin@client.com', clientId: 1 },
-        { id: 3, name: 'Charlie User', email: 'user@client.com', clientId: 1 },
-        { id: 4, name: 'Dave Smith', email: 'dave@client.com', clientId: 1 },
-      ]
-    : [];
+  const clientUsersMap = {
+    1: [
+      { id: 2, name: 'Bob Admin', email: 'admin@client.com', clientId: 1 },
+      { id: 3, name: 'Charlie User', email: 'user@client.com', clientId: 1 },
+      { id: 4, name: 'Dave Smith', email: 'dave@client.com', clientId: 1 },
+    ],
+    2: [
+      { id: 5, name: 'Jane Smith', email: 'jane@techstart.com', clientId: 2 },
+      { id: 6, name: 'Mark Johnson', email: 'mark@techstart.com', clientId: 2 },
+    ],
+  };
+
+  const clientUsers = clientUsersMap[clientId] || [];
 
   // Calculate points for each user
   const userStats = clientUsers.map(user => {
@@ -436,10 +453,14 @@ export const handlers = [
   }),
 
   // Get rankings
-  http.get('/api/rankings', () => {
-    // In a real app, we'd get the user's client from the auth token
-    // For now, we'll return rankings for client 1
-    const rankings = calculateClientRankings(1);
+  http.get('/api/rankings', ({ request }) => {
+    const url = new URL(request.url);
+    const clientIdParam = url.searchParams.get('clientId');
+    
+    // If clientId is provided, use it; otherwise default to client 1
+    const clientId = clientIdParam ? parseInt(clientIdParam) : 1;
+    
+    const rankings = calculateClientRankings(clientId);
 
     return HttpResponse.json({
       rankings,
