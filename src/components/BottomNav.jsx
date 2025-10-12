@@ -6,7 +6,8 @@ import {
   Settings, 
   Building2,
   Trophy,
-  Award
+  Award,
+  Target
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -31,6 +32,12 @@ const BottomNav = () => {
       href: '/leagues',
       icon: Trophy,
       roles: ['root_admin', 'client_admin', 'client_user'],
+    },
+    {
+      name: 'Predictions',
+      href: '/predictions',
+      icon: Target,
+      roles: ['client_admin', 'client_user'],
     },
     {
       name: 'Ranking',

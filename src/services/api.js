@@ -38,4 +38,15 @@ export const clientService = {
   getClientUsers: (clientId) => api.get(`/clients/${clientId}/users`),
 };
 
+export const predictionsService = {
+  getUpcomingMatches: () => api.get('/predictions/matches'),
+  getUserPredictions: () => api.get('/predictions/user'),
+  createPrediction: (data) => api.post('/predictions', data),
+  updatePrediction: (predictionId, data) => api.put(`/predictions/${predictionId}`, data),
+};
+
+export const rankingService = {
+  getRanking: () => api.get('/rankings'),
+};
+
 export default api;
