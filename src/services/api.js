@@ -26,21 +26,21 @@ export const analyticsService = {
 };
 
 export const userService = {
-  getUsers: () => api.get('/users'),
+  getUsers: (params = {}) => api.get('/users', { params }),
   updateUserClient: (userId, clientId) => api.patch(`/users/${userId}/client`, { clientId }),
   deleteUser: (userId) => api.delete(`/users/${userId}`),
 };
 
 export const clientService = {
-  getClients: () => api.get('/clients'),
+  getClients: (params = {}) => api.get('/clients', { params }),
   createClient: (data) => api.post('/clients', data),
   getClientById: (clientId) => api.get(`/clients/${clientId}`),
   getClientUsers: (clientId) => api.get(`/clients/${clientId}/users`),
 };
 
 export const predictionsService = {
-  getUpcomingMatches: () => api.get('/predictions/matches'),
-  getUserPredictions: () => api.get('/predictions/user'),
+  getUpcomingMatches: (params = {}) => api.get('/predictions/matches', { params }),
+  getUserPredictions: (params = {}) => api.get('/predictions/user', { params }),
   createPrediction: (data) => api.post('/predictions', data),
   updatePrediction: (predictionId, data) => api.put(`/predictions/${predictionId}`, data),
 };

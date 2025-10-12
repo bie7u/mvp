@@ -13,21 +13,24 @@ const Predictions = () => {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        const response = await predictionsService.getUpcomingMatches();
-        
-        // Filter matches to only show those in the next week
+        // Calculate date range for next week
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const nextWeek = new Date(today);
         nextWeek.setDate(nextWeek.getDate() + 7);
         
-        const filteredMatches = response.data.matches.filter(match => {
-          const matchDate = new Date(match.date);
-          matchDate.setHours(0, 0, 0, 0);
-          return matchDate >= today && matchDate <= nextWeek;
-        });
+        // Server-side filtering: send date range and league filter
+        const params = {
+          startDate: today.toISOString().split('T')[0],
+          endDate: nextWeek.toISOString().split('T')[0],
+        };
         
-        setMatches(filteredMatches);
+        if (selectedLeague !== 'all') {
+          params.league = selectedLeague;
+        }
+        
+        const response = await predictionsService.getUpcomingMatches(params);
+        setMatches(response.data.matches);
         
         // Load existing predictions
         const predictionsResponse = await predictionsService.getUserPredictions();
@@ -48,7 +51,7 @@ const Predictions = () => {
     };
 
     fetchMatches();
-  }, []);
+  }, [selectedLeague]);
 
   const handlePredictionChange = (matchId, team, value) => {
     setPredictions(prev => ({
@@ -108,19 +111,16 @@ const Predictions = () => {
            prediction.awayScore !== '';
   };
 
-  // Get unique leagues from matches
+  // Get unique leagues from matches for the filter dropdown
   const leagues = useMemo(() => {
+    // In a real server implementation, this would come from a separate API call
+    // For now we'll keep this client-side for the UI dropdown
     const uniqueLeagues = [...new Set(matches.map(match => match.league))];
     return uniqueLeagues.sort();
   }, [matches]);
 
-  // Filter matches by selected league
-  const filteredMatches = useMemo(() => {
-    if (selectedLeague === 'all') {
-      return matches;
-    }
-    return matches.filter(match => match.league === selectedLeague);
-  }, [matches, selectedLeague]);
+  // No client-side filtering needed - server handles it
+  const filteredMatches = matches;
 
   if (loading) {
     return (
