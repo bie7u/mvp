@@ -149,16 +149,18 @@ const Predictions = () => {
       {/* League Filter */}
       {leagues.length > 0 && (
         <div className="mb-6">
-          <div className="flex items-center space-x-3">
-            <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-            <label htmlFor="league-filter" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Filter by League:
-            </label>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+            <div className="flex items-center space-x-2">
+              <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <label htmlFor="league-filter" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Filter by League:
+              </label>
+            </div>
             <select
               id="league-filter"
               value={selectedLeague}
               onChange={(e) => setSelectedLeague(e.target.value)}
-              className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">All Leagues</option>
               {leagues.map(league => (
@@ -192,8 +194,8 @@ const Predictions = () => {
             >
               <div className="flex flex-col space-y-4">
                 {/* Match Header */}
-                <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
-                  <div className="flex items-center space-x-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-200 dark:border-gray-700 pb-4">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                       <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -207,16 +209,16 @@ const Predictions = () => {
                       </span>
                     </div>
                   </div>
-                  <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-xs font-medium">
+                  <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-xs font-medium w-fit">
                     {match.league}
                   </span>
                 </div>
 
                 {/* Teams and Prediction Input */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                <div className="flex flex-col gap-3">
                   {/* Home Team */}
-                  <div className="flex items-center justify-between md:justify-end">
-                    <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 flex-1 min-w-0">
                       {match.homeTeam}
                     </span>
                     <input
@@ -225,46 +227,46 @@ const Predictions = () => {
                       max="20"
                       value={predictions[match.id]?.homeScore ?? ''}
                       onChange={(e) => handlePredictionChange(match.id, 'homeScore', e.target.value)}
-                      className="w-16 ml-4 px-3 py-2 text-center text-lg font-bold bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-gray-100"
+                      className="w-14 sm:w-16 px-2 sm:px-3 py-2 text-center text-lg font-bold bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-gray-100 flex-shrink-0"
                       disabled={match.locked}
                     />
                   </div>
 
                   {/* VS Separator */}
                   <div className="flex items-center justify-center">
-                    <span className="text-xl font-bold text-gray-400 dark:text-gray-600">VS</span>
+                    <span className="text-lg sm:text-xl font-bold text-gray-400 dark:text-gray-600">VS</span>
                   </div>
 
                   {/* Away Team */}
-                  <div className="flex items-center justify-between md:justify-start">
+                  <div className="flex items-center justify-between gap-3">
                     <input
                       type="number"
                       min="0"
                       max="20"
                       value={predictions[match.id]?.awayScore ?? ''}
                       onChange={(e) => handlePredictionChange(match.id, 'awayScore', e.target.value)}
-                      className="w-16 mr-4 px-3 py-2 text-center text-lg font-bold bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-gray-100"
+                      className="w-14 sm:w-16 px-2 sm:px-3 py-2 text-center text-lg font-bold bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-gray-100 flex-shrink-0"
                       disabled={match.locked}
                     />
-                    <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    <span className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 flex-1 min-w-0 text-right">
                       {match.awayTeam}
                     </span>
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center space-x-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-2 min-w-0">
                     {isPredictionComplete(match.id) && !match.locked && (
                       <div className="flex items-center space-x-1 text-green-600 dark:text-green-400">
-                        <CheckCircle className="h-5 w-5" />
-                        <span className="text-sm font-medium">Prediction saved</span>
+                        <CheckCircle className="h-4 sm:h-5 w-4 sm:w-5 flex-shrink-0" />
+                        <span className="text-xs sm:text-sm font-medium">Prediction saved</span>
                       </div>
                     )}
                     {match.locked && (
                       <div className="flex items-center space-x-1 text-gray-500 dark:text-gray-400">
-                        <XCircle className="h-5 w-5" />
-                        <span className="text-sm font-medium">Match started - Predictions locked</span>
+                        <XCircle className="h-4 sm:h-5 w-4 sm:w-5 flex-shrink-0" />
+                        <span className="text-xs sm:text-sm font-medium">Match started - Predictions locked</span>
                       </div>
                     )}
                   </div>
@@ -273,7 +275,7 @@ const Predictions = () => {
                     <button
                       onClick={() => handleSubmitPrediction(match.id)}
                       disabled={saving || !isPredictionComplete(match.id)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      className={`w-full sm:w-auto px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                         isPredictionComplete(match.id) && !saving
                           ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer'
                           : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed'
