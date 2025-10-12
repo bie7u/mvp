@@ -41,6 +41,23 @@ npm run dev
 - **Client Admin**: `admin@client.com` / `password`
 - **Client User**: `user@client.com` / `password`
 
+## 📚 Documentation
+
+- **[API Documentation](./API_DOCUMENTATION.md)**: Complete API specification with all endpoints, parameters, and responses
+- **[Server Implementation Guide](./SERVER_IMPLEMENTATION_GUIDE.md)**: Step-by-step guide for implementing the backend server
+
+## 🔧 Server-Side Filtering
+
+All API endpoints now support server-side filtering for better performance and scalability:
+
+- **Users**: Filter by client, role, status, and search
+- **Clients**: Filter by status and search
+- **Predictions**: Filter by league, date, and locked status
+- **Rankings**: Filter by client with automatic role-based access control
+- **Analytics**: Filter by client and date range
+
+All list endpoints include pagination with configurable page size (max 100 items per page).
+
 ## 📸 Screenshots
 
 ### Login Page
@@ -53,4 +70,7 @@ npm run dev
 ![Analytics](https://github.com/user-attachments/assets/5579284a-e828-4a15-a5c8-d6e1c6e86532)
 
 ### Users Management
-![Users](https://github.com/user-attachments/assets/dfa7b7de-9e83-4431-89aa-c94e318ad055)
+![Users](https://github.com/user-attachments/assets/10cb77b1-4eea-49dd-8537-b4aba0a315f9)
+
+### Ranking with Client Filtering
+![Ranking](https://github.com/user-attachments/assets/15a81a77-88e9-4062-ba44-8ee3fe378a69)
