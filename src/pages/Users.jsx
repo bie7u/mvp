@@ -16,21 +16,37 @@ const Users = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [usersResponse, clientsResponse] = await Promise.all([
-          userService.getUsers(),
-          clientService.getClients(),
-        ]);
-        setUsers(usersResponse.data.users);
+        const clientsResponse = await clientService.getClients();
         setClients(clientsResponse.data.clients);
       } catch (error) {
-        console.error('Failed to fetch data:', error);
-      } finally {
-        setLoading(false);
+        console.error('Failed to fetch clients:', error);
       }
     };
 
     fetchData();
   }, []);
+
+  // Fetch users with server-side search filtering
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const usersResponse = await userService.getUsers({ search: searchTerm });
+        setUsers(usersResponse.data.users);
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Debounce search to avoid too many API calls
+    const timeoutId = setTimeout(() => {
+      fetchUsers();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
 
   const handleClientChange = async (userId, clientId) => {
     try {
@@ -73,11 +89,8 @@ const Users = () => {
     }
   };
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // No client-side filtering needed - server handles it
+  const filteredUsers = users;
 
   if (loading) {
     return (

@@ -278,15 +278,29 @@ export const handlers = [
     });
   }),
 
-  // Users list endpoint
-  http.get('/api/users', () => {
+  // Users list endpoint with server-side filtering
+  http.get('/api/users', ({ request }) => {
+    const url = new URL(request.url);
+    const searchParam = url.searchParams.get('search');
+    
+    let users = [
+      { id: 1, name: 'Alice Root', email: 'root@flowdesk.com', role: 'root_admin', status: 'active', clientId: null, clientName: null },
+      { id: 2, name: 'Bob Admin', email: 'admin@client.com', role: 'client_admin', status: 'active', clientId: 1, clientName: 'Acme Corporation' },
+      { id: 3, name: 'Charlie User', email: 'user@client.com', role: 'client_user', status: 'active', clientId: 1, clientName: 'Acme Corporation' },
+      { id: 4, name: 'Dave Smith', email: 'dave@client.com', role: 'client_user', status: 'inactive', clientId: 1, clientName: 'Acme Corporation' },
+    ];
+    
+    // Server-side search filtering
+    if (searchParam) {
+      const search = searchParam.toLowerCase();
+      users = users.filter(u => 
+        u.name.toLowerCase().includes(search) || 
+        u.email.toLowerCase().includes(search)
+      );
+    }
+    
     return HttpResponse.json({
-      users: [
-        { id: 1, name: 'Alice Root', email: 'root@flowdesk.com', role: 'root_admin', status: 'active', clientId: null, clientName: null },
-        { id: 2, name: 'Bob Admin', email: 'admin@client.com', role: 'client_admin', status: 'active', clientId: 1, clientName: 'Acme Corporation' },
-        { id: 3, name: 'Charlie User', email: 'user@client.com', role: 'client_user', status: 'active', clientId: 1, clientName: 'Acme Corporation' },
-        { id: 4, name: 'Dave Smith', email: 'dave@client.com', role: 'client_user', status: 'inactive', clientId: 1, clientName: 'Acme Corporation' },
-      ],
+      users,
     });
   }),
 
@@ -383,10 +397,44 @@ export const handlers = [
     });
   }),
 
-  // Get upcoming matches for predictions
-  http.get('/api/predictions/matches', () => {
+  // Get upcoming matches for predictions with server-side filtering
+  http.get('/api/predictions/matches', ({ request }) => {
+    const url = new URL(request.url);
+    const leagueParam = url.searchParams.get('league');
+    const startDateParam = url.searchParams.get('startDate');
+    const endDateParam = url.searchParams.get('endDate');
+    
+    let matches = mockMatches;
+    
+    // Server-side date filtering
+    if (startDateParam || endDateParam) {
+      matches = matches.filter(match => {
+        const matchDate = new Date(match.date);
+        matchDate.setHours(0, 0, 0, 0);
+        
+        if (startDateParam) {
+          const startDate = new Date(startDateParam);
+          startDate.setHours(0, 0, 0, 0);
+          if (matchDate < startDate) return false;
+        }
+        
+        if (endDateParam) {
+          const endDate = new Date(endDateParam);
+          endDate.setHours(0, 0, 0, 0);
+          if (matchDate > endDate) return false;
+        }
+        
+        return true;
+      });
+    }
+    
+    // Server-side league filtering
+    if (leagueParam) {
+      matches = matches.filter(match => match.league === leagueParam);
+    }
+    
     return HttpResponse.json({
-      matches: mockMatches,
+      matches,
     });
   }),
 
