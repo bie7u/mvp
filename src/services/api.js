@@ -1,7 +1,9 @@
 import axios from 'axios';
+import apiConfig from '../config/api.config.js';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: apiConfig.baseURL,
+  timeout: apiConfig.timeout,
 });
 
 // Add token to all requests
