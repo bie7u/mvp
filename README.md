@@ -35,6 +35,31 @@ npm install
 npm run dev
 ```
 
+## ⚙️ Configuration
+
+The application can be configured to use either a mock API (via MSW) or a real backend API using environment variables.
+
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Configure the environment variables in `.env`:
+   - `VITE_USE_MOCK_API`: Set to `true` to use Mock Service Worker (development), or `false` to use a real API
+   - `VITE_API_BASE_URL`: The base URL of your real API server (used when `VITE_USE_MOCK_API=false`)
+
+### Development with Mock API (Default)
+```env
+VITE_USE_MOCK_API=true
+VITE_API_BASE_URL=http://localhost:3000/api
+```
+
+### Production with Real API
+```env
+VITE_USE_MOCK_API=false
+VITE_API_BASE_URL=https://api.yourbackend.com/api
+```
+
 ## 🔐 Demo Credentials
 
 - **Root Admin**: `root@flowdesk.com` / `password`
