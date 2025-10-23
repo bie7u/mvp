@@ -27,8 +27,14 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // If error is 401 and we haven't tried to refresh yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Don't try to refresh for login, logout, verify, or refresh endpoints
+    const skipRefreshEndpoints = ['/login', '/logout', '/verify', '/refresh'];
+    const shouldSkipRefresh = skipRefreshEndpoints.some(endpoint => 
+      originalRequest.url?.includes(endpoint)
+    );
+
+    // If error is 401 and we haven't tried to refresh yet and not on skip endpoints
+    if (error.response?.status === 401 && !originalRequest._retry && !shouldSkipRefresh) {
       if (isRefreshing) {
         // If already refreshing, queue this request
         return new Promise((resolve, reject) => {
@@ -57,8 +63,10 @@ api.interceptors.response.use(
         processQueue(refreshError, null);
         isRefreshing = false;
         
-        // If refresh fails, redirect to login
-        window.location.href = '/login';
+        // If refresh fails, redirect to login (but only if not already on login page)
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
         return Promise.reject(refreshError);
       }
     }
