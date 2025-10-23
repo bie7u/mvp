@@ -234,6 +234,16 @@ const calculateClientRankings = (clientId) => {
   }));
 };
 
+// Store refresh tokens in memory (in production, this would be in a database)
+const refreshTokenStore = new Map();
+
+// Helper function to generate mock tokens
+const generateTokens = (userId) => {
+  const accessToken = `access-token-${userId}-${Date.now()}`;
+  const refreshToken = `refresh-token-${userId}-${Date.now()}`;
+  return { accessToken, refreshToken };
+};
+
 export const handlers = [
   // Login endpoint
   http.post('/api/login', async ({ request }) => {
@@ -248,10 +258,150 @@ export const handlers = [
       );
     }
 
-    return HttpResponse.json({
-      token: 'mock-token-123',
-      user: userRecord.user,
+    const { accessToken, refreshToken } = generateTokens(userRecord.user.id);
+    
+    // Store refresh token
+    refreshTokenStore.set(refreshToken, {
+      userId: userRecord.user.id,
+      email: userRecord.user.email,
+      expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
     });
+
+    // Set HTTP-only cookies
+    const headers = new Headers();
+    headers.append('Set-Cookie', `accessToken=${accessToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=900`); // 15 minutes
+    headers.append('Set-Cookie', `refreshToken=${refreshToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=604800`); // 7 days
+
+    return HttpResponse.json(
+      { user: userRecord.user },
+      { headers }
+    );
+  }),
+
+  // Refresh token endpoint
+  http.post('/api/refresh', async ({ request }) => {
+    const cookieHeader = request.headers.get('cookie');
+    
+    if (!cookieHeader) {
+      return HttpResponse.json(
+        { message: 'No refresh token provided' },
+        { status: 401 }
+      );
+    }
+
+    // Parse refresh token from cookies
+    const cookies = Object.fromEntries(
+      cookieHeader.split('; ').map(c => {
+        const [key, ...v] = c.split('=');
+        return [key, v.join('=')];
+      })
+    );
+
+    const refreshToken = cookies.refreshToken;
+
+    if (!refreshToken) {
+      return HttpResponse.json(
+        { message: 'No refresh token provided' },
+        { status: 401 }
+      );
+    }
+
+    const tokenData = refreshTokenStore.get(refreshToken);
+
+    if (!tokenData || tokenData.expiresAt < Date.now()) {
+      refreshTokenStore.delete(refreshToken);
+      return HttpResponse.json(
+        { message: 'Invalid or expired refresh token' },
+        { status: 401 }
+      );
+    }
+
+    // Generate new access token
+    const { accessToken } = generateTokens(tokenData.userId);
+
+    // Set new access token cookie
+    const headers = new Headers();
+    headers.append('Set-Cookie', `accessToken=${accessToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=900`); // 15 minutes
+
+    return HttpResponse.json(
+      { success: true },
+      { headers }
+    );
+  }),
+
+  // Logout endpoint
+  http.post('/api/logout', async ({ request }) => {
+    const cookieHeader = request.headers.get('cookie');
+    
+    if (cookieHeader) {
+      const cookies = Object.fromEntries(
+        cookieHeader.split('; ').map(c => {
+          const [key, ...v] = c.split('=');
+          return [key, v.join('=')];
+        })
+      );
+
+      const refreshToken = cookies.refreshToken;
+      if (refreshToken) {
+        refreshTokenStore.delete(refreshToken);
+      }
+    }
+
+    // Clear cookies
+    const headers = new Headers();
+    headers.append('Set-Cookie', 'accessToken=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0');
+    headers.append('Set-Cookie', 'refreshToken=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0');
+
+    return HttpResponse.json(
+      { message: 'Logged out successfully' },
+      { headers }
+    );
+  }),
+
+  // Verify token endpoint (to check if user is authenticated)
+  http.get('/api/verify', async ({ request }) => {
+    const cookieHeader = request.headers.get('cookie');
+    
+    if (!cookieHeader) {
+      return HttpResponse.json(
+        { message: 'Not authenticated' },
+        { status: 401 }
+      );
+    }
+
+    const cookies = Object.fromEntries(
+      cookieHeader.split('; ').map(c => {
+        const [key, ...v] = c.split('=');
+        return [key, v.join('=')];
+      })
+    );
+
+    const accessToken = cookies.accessToken;
+
+    if (!accessToken || !accessToken.startsWith('access-token-')) {
+      return HttpResponse.json(
+        { message: 'Invalid access token' },
+        { status: 401 }
+      );
+    }
+
+    // Extract userId from token (in a real app, you'd verify JWT)
+    const parts = accessToken.split('-');
+    const userId = parseInt(parts[2]);
+
+    // Find user by ID
+    const user = Object.values(mockUsers)
+      .map(u => u.user)
+      .find(u => u.id === userId);
+
+    if (!user) {
+      return HttpResponse.json(
+        { message: 'User not found' },
+        { status: 401 }
+      );
+    }
+
+    return HttpResponse.json({ user });
   }),
 
   // Dashboard stats endpoint

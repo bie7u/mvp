@@ -20,7 +20,7 @@ const Login = () => {
 
     try {
       const response = await authService.login(email, password);
-      login(response.data.token, response.data.user);
+      login(response.data.user);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
