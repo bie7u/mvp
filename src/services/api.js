@@ -46,7 +46,7 @@ export const predictionsService = {
 };
 
 export const rankingService = {
-  getRanking: () => api.get('/rankings'),
+  getRanking: (clientId) => api.get('/rankings', { params: { clientId } }),
 };
 
 export default api;

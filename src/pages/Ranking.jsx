@@ -2,17 +2,42 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, TrendingUp, Award } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { rankingService } from '../services/api';
+import { rankingService, clientService } from '../services/api';
 
 const Ranking = () => {
   const { user } = useAuth();
   const [rankingData, setRankingData] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [selectedClientId, setSelectedClientId] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Fetch clients for root_admin
+  useEffect(() => {
+    const fetchClients = async () => {
+      if (user.role === 'root_admin') {
+        try {
+          const response = await clientService.getClients();
+          const clientsList = response.data.clients;
+          setClients(clientsList);
+          // Set first client as default
+          if (clientsList.length > 0) {
+            setSelectedClientId(clientsList[0].id);
+          }
+        } catch (error) {
+          console.error('Failed to fetch clients:', error);
+        }
+      }
+    };
+
+    fetchClients();
+  }, [user.role]);
 
   useEffect(() => {
     const fetchRanking = async () => {
       try {
-        const response = await rankingService.getRanking();
+        // For root_admin, use selected client; for others, don't pass clientId (backend uses auth)
+        const clientId = user.role === 'root_admin' ? selectedClientId : undefined;
+        const response = await rankingService.getRanking(clientId);
         setRankingData(response.data.rankings);
       } catch (error) {
         console.error('Failed to fetch ranking:', error);
@@ -21,8 +46,11 @@ const Ranking = () => {
       }
     };
 
-    fetchRanking();
-  }, []);
+    // Only fetch if we have a selectedClientId for root_admin, or for non-root_admin users
+    if (user.role !== 'root_admin' || selectedClientId) {
+      fetchRanking();
+    }
+  }, [selectedClientId, user.role]);
 
   if (loading) {
     return (
@@ -43,6 +71,28 @@ const Ranking = () => {
             ? 'Overall prediction rankings across all users'
             : 'Your organization\'s prediction rankings'}
         </p>
+        
+        {/* Client Filter for Root Admin */}
+        {user.role === 'root_admin' && clients.length > 0 && (
+          <div className="mt-4">
+            <label htmlFor="client-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Filter by Client
+            </label>
+            <select
+              id="client-filter"
+              value={selectedClientId || ''}
+              onChange={(e) => setSelectedClientId(parseInt(e.target.value))}
+              className="block w-full md:w-64 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-gray-100"
+            >
+              {clients.map((client) => (
+                <option key={client.id} value={client.id}>
+                  {client.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        
         <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
           <p className="text-sm text-blue-800 dark:text-blue-300">
             <strong>Scoring:</strong> 3 points for correct result (exact score), 1 point for correct winner

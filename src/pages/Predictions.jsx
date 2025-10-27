@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Trophy, CheckCircle, XCircle } from 'lucide-react';
+import { Calendar, Clock, Trophy, CheckCircle, XCircle, Filter } from 'lucide-react';
 import { predictionsService } from '../services/api';
 
 const Predictions = () => {
@@ -8,12 +8,26 @@ const Predictions = () => {
   const [predictions, setPredictions] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [selectedLeague, setSelectedLeague] = useState('all');
 
   useEffect(() => {
     const fetchMatches = async () => {
       try {
         const response = await predictionsService.getUpcomingMatches();
-        setMatches(response.data.matches);
+        
+        // Filter matches to only show those in the next week
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const nextWeek = new Date(today);
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        
+        const filteredMatches = response.data.matches.filter(match => {
+          const matchDate = new Date(match.date);
+          matchDate.setHours(0, 0, 0, 0);
+          return matchDate >= today && matchDate <= nextWeek;
+        });
+        
+        setMatches(filteredMatches);
         
         // Load existing predictions
         const predictionsResponse = await predictionsService.getUserPredictions();
@@ -94,6 +108,20 @@ const Predictions = () => {
            prediction.awayScore !== '';
   };
 
+  // Get unique leagues from matches
+  const leagues = useMemo(() => {
+    const uniqueLeagues = [...new Set(matches.map(match => match.league))];
+    return uniqueLeagues.sort();
+  }, [matches]);
+
+  // Filter matches by selected league
+  const filteredMatches = useMemo(() => {
+    if (selectedLeague === 'all') {
+      return matches;
+    }
+    return matches.filter(match => match.league === selectedLeague);
+  }, [matches, selectedLeague]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
@@ -118,7 +146,30 @@ const Predictions = () => {
         </div>
       </div>
 
-      {matches.length === 0 ? (
+      {/* League Filter */}
+      {leagues.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center space-x-3">
+            <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+            <label htmlFor="league-filter" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Filter by League:
+            </label>
+            <select
+              id="league-filter"
+              value={selectedLeague}
+              onChange={(e) => setSelectedLeague(e.target.value)}
+              className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="all">All Leagues</option>
+              {leagues.map(league => (
+                <option key={league} value={league}>{league}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
+
+      {filteredMatches.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -131,7 +182,7 @@ const Predictions = () => {
         </motion.div>
       ) : (
         <div className="space-y-4">
-          {matches.map((match, index) => (
+          {filteredMatches.map((match, index) => (
             <motion.div
               key={match.id}
               initial={{ opacity: 0, y: 20 }}

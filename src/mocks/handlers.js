@@ -40,9 +40,16 @@ let mockClients = [
     adminEmail: 'admin@client.com',
     status: 'active',
   },
+  {
+    id: 2,
+    name: 'TechStart Inc',
+    adminName: 'Jane Smith',
+    adminEmail: 'jane@techstart.com',
+    status: 'active',
+  },
 ];
 
-let nextClientId = 2;
+let nextClientId = 3;
 
 // Mock predictions database
 let mockPredictions = [
@@ -51,9 +58,13 @@ let mockPredictions = [
   { id: 2, userId: 2, userName: 'Bob Admin', email: 'admin@client.com', clientId: 1, matchId: 2, homeScore: 1, awayScore: 1 },
   { id: 3, userId: 3, userName: 'Charlie User', email: 'user@client.com', clientId: 1, matchId: 1, homeScore: 3, awayScore: 1 },
   { id: 4, userId: 3, userName: 'Charlie User', email: 'user@client.com', clientId: 1, matchId: 2, homeScore: 0, awayScore: 2 },
+  // Client 2 users predictions
+  { id: 5, userId: 5, userName: 'Jane Smith', email: 'jane@techstart.com', clientId: 2, matchId: 1, homeScore: 1, awayScore: 2 },
+  { id: 6, userId: 5, userName: 'Jane Smith', email: 'jane@techstart.com', clientId: 2, matchId: 2, homeScore: 2, awayScore: 1 },
+  { id: 7, userId: 6, userName: 'Mark Johnson', email: 'mark@techstart.com', clientId: 2, matchId: 1, homeScore: 2, awayScore: 0 },
 ];
 
-let nextPredictionId = 5;
+let nextPredictionId = 8;
 
 // Mock matches database
 const mockMatches = [
@@ -61,29 +72,25 @@ const mockMatches = [
     id: 1,
     homeTeam: 'Manchester City',
     awayTeam: 'Arsenal',
-    date: '2025-10-20',
+    date: '2025-10-13',
     time: '15:00',
     league: 'Premier League',
-    locked: true,
-    actualHomeScore: 2,
-    actualAwayScore: 1,
+    locked: false,
   },
   {
     id: 2,
     homeTeam: 'Liverpool',
     awayTeam: 'Chelsea',
-    date: '2025-10-20',
+    date: '2025-10-14',
     time: '17:30',
     league: 'Premier League',
-    locked: true,
-    actualHomeScore: 1,
-    actualAwayScore: 1,
+    locked: false,
   },
   {
     id: 3,
     homeTeam: 'Real Madrid',
     awayTeam: 'Barcelona',
-    date: '2025-10-21',
+    date: '2025-10-15',
     time: '20:00',
     league: 'La Liga',
     locked: false,
@@ -92,7 +99,7 @@ const mockMatches = [
     id: 4,
     homeTeam: 'Bayern Munich',
     awayTeam: 'Borussia Dortmund',
-    date: '2025-10-22',
+    date: '2025-10-16',
     time: '18:30',
     league: 'Bundesliga',
     locked: false,
@@ -101,9 +108,36 @@ const mockMatches = [
     id: 5,
     homeTeam: 'Inter Milan',
     awayTeam: 'AC Milan',
-    date: '2025-10-23',
+    date: '2025-10-17',
     time: '19:45',
     league: 'Serie A',
+    locked: false,
+  },
+  {
+    id: 6,
+    homeTeam: 'Tottenham',
+    awayTeam: 'Manchester United',
+    date: '2025-10-18',
+    time: '16:00',
+    league: 'Premier League',
+    locked: false,
+  },
+  {
+    id: 7,
+    homeTeam: 'Atletico Madrid',
+    awayTeam: 'Sevilla',
+    date: '2025-10-20',
+    time: '21:00',
+    league: 'La Liga',
+    locked: false,
+  },
+  {
+    id: 8,
+    homeTeam: 'PSG',
+    awayTeam: 'Marseille',
+    date: '2025-10-25',
+    time: '20:00',
+    league: 'Ligue 1',
     locked: false,
   },
 ];
@@ -140,13 +174,19 @@ const calculatePoints = (prediction, match) => {
 // Helper function to calculate user rankings for a client
 const calculateClientRankings = (clientId) => {
   // Get all users in this client
-  const clientUsers = clientId === 1 
-    ? [
-        { id: 2, name: 'Bob Admin', email: 'admin@client.com', clientId: 1 },
-        { id: 3, name: 'Charlie User', email: 'user@client.com', clientId: 1 },
-        { id: 4, name: 'Dave Smith', email: 'dave@client.com', clientId: 1 },
-      ]
-    : [];
+  const clientUsersMap = {
+    1: [
+      { id: 2, name: 'Bob Admin', email: 'admin@client.com', clientId: 1 },
+      { id: 3, name: 'Charlie User', email: 'user@client.com', clientId: 1 },
+      { id: 4, name: 'Dave Smith', email: 'dave@client.com', clientId: 1 },
+    ],
+    2: [
+      { id: 5, name: 'Jane Smith', email: 'jane@techstart.com', clientId: 2 },
+      { id: 6, name: 'Mark Johnson', email: 'mark@techstart.com', clientId: 2 },
+    ],
+  };
+
+  const clientUsers = clientUsersMap[clientId] || [];
 
   // Calculate points for each user
   const userStats = clientUsers.map(user => {
@@ -413,10 +453,14 @@ export const handlers = [
   }),
 
   // Get rankings
-  http.get('/api/rankings', () => {
-    // In a real app, we'd get the user's client from the auth token
-    // For now, we'll return rankings for client 1
-    const rankings = calculateClientRankings(1);
+  http.get('/api/rankings', ({ request }) => {
+    const url = new URL(request.url);
+    const clientIdParam = url.searchParams.get('clientId');
+    
+    // If clientId is provided, use it; otherwise default to client 1
+    const clientId = clientIdParam ? parseInt(clientIdParam) : 1;
+    
+    const rankings = calculateClientRankings(clientId);
 
     return HttpResponse.json({
       rankings,
